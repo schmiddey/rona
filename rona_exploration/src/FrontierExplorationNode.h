@@ -120,8 +120,7 @@ private:
     * @param res
     * @return
     */
-   bool callback_srv_transmittTargets(rona_msgs::NodeCtrl::Request&  req,
-         rona_msgs::NodeCtrl::Response& res);
+   bool callback_srv_transmittTargets(rona_msgs::NodeCtrl&  req);
 
    // MEMBERS
    static FrontierExplorationNode* _instance;
@@ -137,7 +136,7 @@ private:
 
    ros::ServiceServer               _best_target_service;
    ros::ServiceServer               _all_targets_service;
-   ros::ServiceServer               _transmitt_targets_service;
+   ros::Publisher               _transmitt_targets_service;
 
    std::vector<WeightedFrontier>    _frontiers;
 

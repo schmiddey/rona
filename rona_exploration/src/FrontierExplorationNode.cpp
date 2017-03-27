@@ -82,8 +82,8 @@ FrontierExplorationNode::FrontierExplorationNode(void) :
    _frontier_grid_pub = _nh.advertise<nav_msgs::GridCells>("frontier_grid", 1);
 
    // Service Server
-   _best_target_service = private_nh.advertiseService("get_target", &FrontierExplorationNode::getFrontierServiceCB, this);
-   _transmitt_targets_service = _nh.advertiseService("frontier/node_control", &FrontierExplorationNode::callback_srv_transmittTargets, this);
+   _best_target_service       = private_nh.advertiseService("get_target", &FrontierExplorationNode::getFrontierServiceCB, this);
+   _transmitt_targets_service = _nh.advertise<rona_msgs::NodeCtrl>("frontier/node_control", 1);
 
    _viz.setNodeHandle(_nh);
 
@@ -192,29 +192,25 @@ void FrontierExplorationNode::publishMarkers(void)
 {
 }
 
-bool FrontierExplorationNode::callback_srv_transmittTargets(
-      rona_msgs::NodeCtrl::Request& req,
-      rona_msgs::NodeCtrl::Response& res)
-{
-   res.accepted = true;
+bool FrontierExplorationNode::callback_srv_transmittTargets(rona_msgs::NodeCtrl& req){
 
-   if(req.action == req.START)
+   if(req.cmd == req.START)
    {
       _mode = frontier::RUN;
    }
-   else if(req.action == req.SINGLESHOT)
+   else if(req.cmd == req.SINGLESHOT)
    {
       _mode = frontier::SINGLESHOT;
    }
-   else if(req.action == req.STOP)
+   else if(req.cmd == req.STOP)
    {
       _mode = frontier::STOP;
    }
-   else
-   {
-      res.accepted = false;
-   }
-   ROS_INFO("ohm_frontier ->  callback NodeControll serivce: accept: %s", (res.accepted) ? "true" : "false");
+//   else
+//   {
+//      res.accepted = false;
+//   }
+//   ROS_INFO("ohm_frontier ->  callback NodeControll serivce: accept: %s", (res.accepted) ? "true" : "false");
 
    return true;
 }
@@ -222,27 +218,27 @@ bool FrontierExplorationNode::callback_srv_transmittTargets(
 } /* namespace autonohm */
 
 
-void callback(rona_lib::ExplorationConfig &config, uint32_t level)
-{
-   std::cout << __PRETTY_FUNCTION__ << std::endl;
-
-//   if(!autonohm::FrontierExplorationNode::getInstance()->isInitialized())
-//      return;
-
-   autonohm::FrontierControllerConfig cfg;
-   cfg.euclideanDistanceFactor = 0; //config.dist_factor;
-   cfg.orientationFactor       = config.orientation_factor;
-   cfg.sizeFactor              = 8.0; //config.size_factor;
-
-
-   ROS_INFO_STREAM("changed configuration: "                              << std::endl <<
-                   "distance factor :   "  << cfg.euclideanDistanceFactor << std::endl <<
-                   "size factor:        "  << cfg.orientationFactor       << std::endl <<
-                   "orientation factor: "  << cfg.sizeFactor              << std::endl);
-
-
-   autonohm::FrontierExplorationNode::getInstance()->setDynamicConfig(cfg);
-}
+//void callback(ExplorationConfig &config, uint32_t level)
+//{
+//   std::cout << __PRETTY_FUNCTION__ << std::endl;
+//
+////   if(!autonohm::FrontierExplorationNode::getInstance()->isInitialized())
+////      return;
+//
+//   autonohm::FrontierControllerConfig cfg;
+//   cfg.euclideanDistanceFactor = 0; //config.dist_factor;
+//   cfg.orientationFactor       = config.orientation_factor;
+//   cfg.sizeFactor              = 8.0; //config.size_factor;
+//
+//
+//   ROS_INFO_STREAM("changed configuration: "                              << std::endl <<
+//                   "distance factor :   "  << cfg.euclideanDistanceFactor << std::endl <<
+//                   "size factor:        "  << cfg.orientationFactor       << std::endl <<
+//                   "orientation factor: "  << cfg.sizeFactor              << std::endl);
+//
+//
+//   autonohm::FrontierExplorationNode::getInstance()->setDynamicConfig(cfg);
+//}
 
 /*
  * Main program
@@ -255,8 +251,8 @@ int main(int argc,char **argv)
    dynamic_reconfigure::Server<ohm_frontier_exploration::ExplorationConfig> server;
    dynamic_reconfigure::Server<ohm_frontier_exploration::ExplorationConfig>::CallbackType f;
 //
-   f = boost::bind(&callback, _1, _2);
-   server.setCallback(f);
+//   f = boost::bind(&callback, _1, _2);
+//   server.setCallback(f);
 
    autonohm::FrontierExplorationNode::getInstance()->run();
 }
