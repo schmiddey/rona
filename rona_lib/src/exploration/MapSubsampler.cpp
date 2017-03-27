@@ -5,7 +5,7 @@
  *      Author: chris
  */
 
-#include "MapSubsampler.h"
+#include <rona_lib/exploration/MapSubsampler.h>
 
 #include <math.h>
 

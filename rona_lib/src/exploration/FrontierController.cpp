@@ -5,7 +5,7 @@
  *      Author: chris
  */
 
-#include "FrontierController.h"
+#include <rona_lib/exploration/FrontierController.h>
 
 #include <tf/tf.h>
 #include <tf/transform_listener.h>

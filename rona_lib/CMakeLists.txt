@@ -133,7 +133,8 @@ include_directories(
   include
 )
 file(GLOB rona_lib_src "src/Map/*.cpp"
-                       "src/Planner/*.cpp")
+                       "src/Planner/*.cpp"
+                       "src/exploration/*.cpp")
 ## Declare a C++ library
 add_library(rona_lib
    ${rona_lib_src}

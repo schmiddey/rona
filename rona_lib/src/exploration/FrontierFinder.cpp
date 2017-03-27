@@ -5,7 +5,7 @@
  *      Author: chris
  */
 
-#include "FrontierFinder.h"
+#include <rona_lib/exploration/FrontierFinder.h>
 
 #include <tf/tf.h>
 #include <tf/LinearMath/Vector3.h>

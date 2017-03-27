@@ -5,8 +5,7 @@
  *      Author: chris
  */
 
-#include "Visualization.h"
-
+#include <rona_lib/exploration/Visualization.h>
 
 namespace autonohm {
 
