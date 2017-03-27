@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   std_msgs
   tf
+  dynamic_reconfigure
 )
 
 SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -O2 -Wall -std=c++11")
@@ -103,6 +104,10 @@ FIND_PACKAGE( OpenCV REQUIRED )
 #   cfg/DynReconf2.cfg
 # )
 
+generate_dynamic_reconfigure_options(
+  cfg/Exploration.cfg
+)
+
 ###################################
 ## catkin specific configuration ##
 ###################################
@@ -132,6 +137,7 @@ include_directories(
   ${EIGEN_INCLUDE_DIRS}
   include
 )
+
 file(GLOB rona_lib_src "src/Map/*.cpp"
                        "src/Planner/*.cpp"
                        "src/exploration/*.cpp")
@@ -143,7 +149,7 @@ add_library(rona_lib
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
-# add_dependencies(rona_lib ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(rona_lib ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
 # add_executable(rona_lib_node src/rona_lib_node.cpp)
@@ -151,6 +157,9 @@ add_library(rona_lib
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 # add_dependencies(rona_lib_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+# make sure configure headers are built before any node using them
+#add_dependencies(example_node ${PROJECT_NAME}_gencfg)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(rona_lib
