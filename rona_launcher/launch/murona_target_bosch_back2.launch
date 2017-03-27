@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<launch>
+   <!-- path controll node -->
+   <node name="rona_test_murona_target_node" pkg="rona_test" type="rona_test_murona_target_node" output="screen">
+      <param name="r0x"                type="double" value="0.3"               />
+      <param name="r0y"                type="double" value="2.3"               />
+      <param name="r1x"                type="double" value="3.0"               />
+      <param name="r1y"                type="double" value="2.0"               />
+      <param name="r2x"                type="double" value="-2.0"               />
+      <param name="r2y"                type="double" value="3.0"               />
+      <param name="r3x"                type="double" value="2.5"               />
+      <param name="r3y"                type="double" value="7.5"               />
+      <param name="r4x"                type="double" value="5.5"               />
+      <param name="r4y"                type="double" value="12.5"               />
+      <param name="r5x"                type="double" value="9.5"               />
+      <param name="r5y"                type="double" value="8.5"               />
+   </node>
+
+</launch>

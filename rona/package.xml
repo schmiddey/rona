@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<package>
+  <name>rona</name>
+  <version>0.0.0</version>
+  <description>The Robot Navigation Meta Package</description>
+
+  <!-- One maintainer tag required, multiple allowed, one person per tag -->
+  <!-- Example:  -->
+  <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
+  <maintainer email="michael.schmidpeter@th-nuernberg.de">m1ch1</maintainer>
+
+
+  <!-- One license tag required, multiple allowed, one license per tag -->
+  <!-- Commonly used license strings: -->
+  <!--   BSD, MIT, Boost Software License, GPLv2, GPLv3, LGPLv2.1, LGPLv3 -->
+  <license>BSD</license>
+
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+
+  <run_depend>rona_launcher</run_depend>
+  <run_depend>rona_lib</run_depend>
+  <run_depend>rona_msgs</run_depend>
+  <run_depend>sirona</run_depend>
+  <run_depend>murona</run_depend>
+  <run_depend>rona_obstacle</run_depend>
+  <run_depend>rona_move</run_depend>
+  <run_depend>rona_test</run_depend>
+
+
+  <export>
+    <metapackage/>
+  </export>
+</package>

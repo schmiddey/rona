@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<launch>
+
+   <!-- add robot -->
+   <node pkg="stdr_robot" type="robot_handler" name="$(anon robot_spawn)" args="add $(find stdr_resources)/resources/robots/simple_robot.xml 3 2 0" />
+   <!-- add robot path controll node -->
+
+
+   <!-- namespace for robot -->
+   <group ns="robot5">
+   
+       <!-- path controll node -->
+      <node name="rona_move_node" pkg="rona_move" type="rona_move_node">
+         <param name="pub_cmd_vel_topic"        type="string" value="cmd_vel"           />
+         <param name="pub_state_topic"          type="string" value="rona/move/state"   />
+         <param name="pub_process_topic"        type="string" value="rona/move/process" />
+         <param name="sub_path_topic"           type="string" value="rona/move/path"    />
+         <param name="sub_ctrl_topic"           type="string" value="rona/move/ctrl"    />
+         <param name="map_frame"                type="string" value="/map"               />
+         <param name="robot_frame"              type="string" value="robot5"    />
+         <param name="vel_lin_max"              type="double" value="0.4"               />
+         <param name="vel_ang_max"              type="double" value="0.8"               />
+         <param name="target_radius"            type="double" value="0.24"              />
+         <param name="target_radius_final"      type="double" value="0.1"               />
+         <param name="cos_pwr_n"                type="int"    value="4 "                />
+         <param name="cos_fac_n"                type="double" value="3.0"               />
+         <param name="ang_reached_range"        type="double" value="0.05"               />
+         <param name="lin_end_approach"         type="double" value="1.0"               />
+         <param name="lin_ctrl_scale"           type="double" value="2.0"               />
+         <param name="ang_ctrl_scale"           type="double" value="4.0"               />
+         <param name="min_vel_value"            type="double" value="0.001"             />
+      </node>
+
+      <!-- add robot planner node-->
+      <node name="murona_node" pkg="murona" type="murona_node" output = "screen">
+         <param name="pub_motion_topic"          type="string" value="/robot_motion"     />
+         <param name="pub_path_topic"            type="string" value="rona/move/path"         />
+         <param name="pub_marker_topic"          type="string" value="collision_marker"  />
+         <param name="pub_state_topic"           type="string" value="planner/state"     />
+         <param name="pub_move_pause_topic"      type="string" value="rona/move/ctrl"        />
+         <param name="sub_map_topic"             type="string" value="/map"              />
+         <param name="sub_motion_topic"          type="string" value="/robot_motion"     />
+         <param name="sub_target_topic"         type="string" value="target"          />
+         <param name="sub_move_state_topic"      type="string" value="rona/move/state"        />
+         <param name="sub_move_process_topic"    type="string" value="rona/move/process"      />
+         <param name="robot_frame"               type="string" value="robot5"            />
+         <param name="map_frame"                 type="string" value="map"               />
+         <param name="max_share_path_lenght"     type="double" value="3.0"               />
+         <param name="average_vel"               type="double" value="0.4"               />
+         <param name="refresh_motion"            type="double" value="1.0"               />
+         <param name="time_margin_collision"     type="double" value="8.0"               />
+         <param name="robot_radius"              type="double" value="0.3"               />
+         <param name="color_r"                   type="double" value="1.0"               />
+         <param name="color_g"                   type="double" value="1.0"               />
+         <param name="color_b"                   type="double" value="0.0"               />
+         <param name="color_a"                   type="double" value="0.5"               />
+         <param name="robot_id"                  type="int"    value="5"                 />
+         <param name="robot_prio"                type="int"    value="5"                 />
+      </node>
+
+   </group>
+
+</launch>
