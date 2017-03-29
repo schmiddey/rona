@@ -141,34 +141,34 @@ void SironaNode::debug_save_as_img(std::string file,
       return;
    }
    //debug: draw path in cv::Mat
-   cv::Mat cvmap = grid->toCvMat();
-
-   cv::cvtColor(cvmap, cvmap, CV_GRAY2RGB);
-
-   if(path.size())
-   {
-      rona::map::Pixel p = grid->toPixel(path[0].pos);
-      cv::Point old;
-      cv::Point curr;
-      old.x = p.x;
-      old.y = p.y;
-      //std::cout << "PixelPath: " << std::endl;
-      for(unsigned int i = 1; i < path.size(); ++i)
-      {
-         p = grid->toPixel(path[i].pos);
-//         std::cout << p;// << " ,(" << path[i].pos.x << "," << path[i].pos.y << ")" <<std::endl;
-//         ROS_INFO(", (%f, %f)", path[i].pos.x, path[i].pos.y);
-         curr.x = p.x;
-         curr.y = p.y;
-         cv::line(cvmap, curr, old, cv::Scalar(0,255,0),2);
-         old = curr;
-      }
-
-   }
-
-   cv::flip(cvmap, cvmap, -1);
-   cv::flip(cvmap, cvmap, 1);
-   cv::imwrite(file.c_str(),cvmap);
+//   cv::Mat cvmap = grid->toCvMat();
+//
+//   cv::cvtColor(cvmap, cvmap, CV_GRAY2RGB);
+//
+//   if(path.size())
+//   {
+//      rona::map::Pixel p = grid->toPixel(path[0].pos);
+//      cv::Point old;
+//      cv::Point curr;
+//      old.x = p.x;
+//      old.y = p.y;
+//      //std::cout << "PixelPath: " << std::endl;
+//      for(unsigned int i = 1; i < path.size(); ++i)
+//      {
+//         p = grid->toPixel(path[i].pos);
+////         std::cout << p;// << " ,(" << path[i].pos.x << "," << path[i].pos.y << ")" <<std::endl;
+////         ROS_INFO(", (%f, %f)", path[i].pos.x, path[i].pos.y);
+//         curr.x = p.x;
+//         curr.y = p.y;
+//         cv::line(cvmap, curr, old, cv::Scalar(0,255,0),2);
+//         old = curr;
+//      }
+//
+//   }
+//
+//   cv::flip(cvmap, cvmap, -1);
+//   cv::flip(cvmap, cvmap, 1);
+//   cv::imwrite(file.c_str(),cvmap);
 }
 
 

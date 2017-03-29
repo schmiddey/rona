@@ -26,7 +26,7 @@ find_package(Eigen REQUIRED)
 # find_package(Boost REQUIRED COMPONENTS system)
 
 #find opencv package
-FIND_PACKAGE( OpenCV REQUIRED )
+#FIND_PACKAGE( OpenCV 3 REQUIRED )
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -133,7 +133,7 @@ catkin_package(
 # include_directories(include)
 include_directories(
   ${catkin_INCLUDE_DIRS}
-  ${OpenCV_INCLUDE_DIRS}
+  #${OpenCV_INCLUDE_DIRS}
   ${EIGEN_INCLUDE_DIRS}
   include
 )
