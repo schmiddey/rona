@@ -24,7 +24,7 @@ SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -O2 -Wall -std=c++11")
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 #find opencv package
-FIND_PACKAGE( OpenCV REQUIRED )
+FIND_PACKAGE( OpenCV 3 REQUIRED )
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -142,7 +142,7 @@ include_directories(
 
 file(GLOB sirona_plan "src/SironaPlan.cpp"
                        )
-                       
+
 file(GLOB sirona_sm "src/SironaSM.cpp"
 )
 

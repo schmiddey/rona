@@ -162,9 +162,9 @@ void MuronaSimpleNode::subTarget_callback(const geometry_msgs::PoseStamped& msg)
    rona::map::Path path = _planner->computePath(n_start, n_end);
 
    //debug
-
-   cv::Mat cvmap = _map->getGrid()->toCvMat();
-   cv::imwrite("/tmp/initmap.png", cvmap);
+//
+//   cv::Mat cvmap = _map->getGrid()->toCvMat();
+//   cv::imwrite("/tmp/initmap.png", cvmap);
 
 
    _path_raw = path;
@@ -410,8 +410,8 @@ void MuronaSimpleNode::subMotion_callback(const rona_msgs::RobotMotion& msg)
    tmp_path = _planner->recomputePath(node_s);
 
 
-   cv::Mat cvmap = currPlanMap->getGrid()->toCvMat();
-   cv::imwrite("/tmp/tmpplanmap.png", cvmap);
+//   cv::Mat cvmap = currPlanMap->getGrid()->toCvMat();
+//   cv::imwrite("/tmp/tmpplanmap.png", cvmap);
 
    double length_path_curr = rona::map::Operations::computePathLength(_path_curr, _currentMovePorcess);
    double length_path_new  = rona::map::Operations::computePathLength(tmp_path);
@@ -734,15 +734,15 @@ void MuronaSimpleNode::doReplan()
    _planner->setMap(currPlanMap);
    _currMap = currPlanMap;
 
-   //debug
-   cv::Mat cvmap = currPlanMap->getGrid()->toCvMat();
-   // draw start
-   cv::Point x(currPlanMap->getGrid()->toPixel(currPos).x,currPlanMap->getGrid()->toPixel(currPos).y);
-   cv::line(cvmap, x, x, cv::Scalar(128), 3);
-   x.x = currPlanMap->getGrid()->toPixel(_currentTarget).x;
-   x.y = currPlanMap->getGrid()->toPixel(_currentTarget).y;
-   cv::line(cvmap, x, x, cv::Scalar(128), 3);
-   cv::imwrite("/tmp/replanmap.png", cvmap);
+//   //debug
+//   cv::Mat cvmap = currPlanMap->getGrid()->toCvMat();
+//   // draw start
+//   cv::Point x(currPlanMap->getGrid()->toPixel(currPos).x,currPlanMap->getGrid()->toPixel(currPos).y);
+//   cv::line(cvmap, x, x, cv::Scalar(128), 3);
+//   x.x = currPlanMap->getGrid()->toPixel(_currentTarget).x;
+//   x.y = currPlanMap->getGrid()->toPixel(_currentTarget).y;
+//   cv::line(cvmap, x, x, cv::Scalar(128), 3);
+//   cv::imwrite("/tmp/replanmap.png", cvmap);
 
    rona::map::Path new_path;
    rona::map::Node node_s;

@@ -10,7 +10,7 @@
 
 ///@todo remove this define
 #define USE_ROS
-#define USE_OPENCV
+//#define USE_OPENCV
 
 #include <iostream>
 #include <memory>
@@ -28,7 +28,7 @@
 
 //opencv stuff
 #ifdef USE_OPENCV
-#include <opencv2/opencv.hpp>
+//#include <opencv2/opencv.hpp>
 #endif
 
 #include <rona_lib/Map/map_types.h>
@@ -152,18 +152,18 @@ public:
     */
    virtual ~Grid();
 
-#ifdef USE_OPENCV
-   inline cv::Mat toCvMat()
-   {
-      cv::Mat tmp_img(cv::Size(this->getWidth(), this->getHeight()),
-                      CV_8UC1,
-                      (unsigned char*) &this->getData()[0], //address of first vector element
-                      cv::Mat::AUTO_STEP);
-      cv::Mat ret;
-      tmp_img.copyTo(ret);
-      return ret;
-   }
-#endif
+//#ifdef USE_OPENCV
+//   inline cv::Mat toCvMat()
+//   {
+//      cv::Mat tmp_img(cv::Size(this->getWidth(), this->getHeight()),
+//                      CV_8UC1,
+//                      (unsigned char*) &this->getData()[0], //address of first vector element
+//                      cv::Mat::AUTO_STEP);
+//      cv::Mat ret;
+//      tmp_img.copyTo(ret);
+//      return ret;
+//   }
+//#endif
 
    /**
     * @returns data vector
