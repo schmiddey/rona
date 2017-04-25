@@ -17,6 +17,7 @@ SironaPlan::SironaPlan()
     std::string pub_path_topic  ;
     std::string pub_grid_topic;
     std::string pub_grid_ob_topic;
+    std::string pub_map;
     std::string map_frame       ;
     std::string robot_frame     ;
 
@@ -36,6 +37,7 @@ SironaPlan::SironaPlan()
     privNh.param        ("pub_path_topic"         ,    pub_path_topic  ,          std::string("rona/plan/path"         ));
     privNh.param        ("pub_grid_topic"         ,    pub_grid_topic  ,          std::string("rona/map/inflated"      ));
     privNh.param        ("pub_grid_ob_topic"      ,    pub_grid_ob_topic  ,       std::string("rona/map/obstacles"     ));
+    privNh.param        ("pub_map_topic"          ,    pub_map           ,        std::string("rona/map/map"           ));
     privNh.param        ("map_frame"              ,    map_frame       ,          std::string("map"                    ));
     privNh.param        ("robot_frame"            ,    robot_frame     ,          std::string("base_footprint"         ));
     privNh.param<double>("robot_radius"           ,    robot_radius,              0.35 ); //[m]
@@ -61,6 +63,7 @@ SironaPlan::SironaPlan()
     _pubPath      = _nh.advertise<nav_msgs::Path>(pub_path_topic, 2);
     _pubGrid      = _nh.advertise<nav_msgs::GridCells>(pub_grid_topic, 1);
     _pubGridOb    = _nh.advertise<nav_msgs::GridCells>(pub_grid_ob_topic, 1);
+    _pubMap       = _nh.advertise<nav_msgs::OccupancyGrid>(pub_map, 1);
 
     //inti subscriber
     //_sub = _nh.subscribe("topicName", 1, &Template::subCallback, this);
@@ -184,6 +187,7 @@ std::shared_ptr<rona::map::GridMap> SironaPlan::doMapOperations(
    rona::map::Operations::distnaceTransformCirc(costmap, _dt_radius, 255);
 
    //this->debug_save_as_img("/tmp/map_dt.png", costmap);
+   _pubMap.publish(costmap->toRosOccGrid());
 
    map->addCostMap("dt_map", costmap);
 

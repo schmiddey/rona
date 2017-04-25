@@ -102,6 +102,35 @@ public:
       return gridCells;
    }
 
+    nav_msgs::OccupancyGrid toRosOccGrid(std::string frame_id = "map")
+   {
+     nav_msgs::OccupancyGrid occ_grid;
+     occ_grid.header.frame_id           = "map";
+     occ_grid.header.stamp              = ros::Time::now();
+
+     occ_grid.info.resolution           = this->getCellSize();
+     occ_grid.info.width                = this->getWidth();
+     occ_grid.info.height               = this->getHeight();
+     occ_grid.info.origin.orientation.w = 0.0;
+     occ_grid.info.origin.orientation.x = 0.0;
+     occ_grid.info.origin.orientation.y = 0.0;
+     occ_grid.info.origin.orientation.z = 0.0;
+     occ_grid.info.origin.position.x    = this->getOriginPoint2D().x;
+     occ_grid.info.origin.position.y    = this->getOriginPoint2D().y;
+     occ_grid.info.origin.position.z    = 0.0;
+     occ_grid.data.resize(this->getWidth() * this->getHeight());
+
+     //todo check unbekannt und so...
+     auto& data = this->getData();
+
+     for(unsigned int i=0; i<data.size(); ++i)
+     {
+       occ_grid.data[i] = static_cast<int8_t>(data[i]);
+     }
+
+     return occ_grid;
+   }
+
 
 #endif
    /**

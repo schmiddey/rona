@@ -111,8 +111,10 @@ private:
     * @param res
     * @return
     */
-   bool getAllFrontierServiceCB(rona_msgs::GetFrontierTarget::Request&  req,
-         rona_msgs::GetFrontierTarget::Response& res);
+//   bool getAllFrontierServiceCB(rona_msgs::GetFrontierTarget::Request&  req,
+//         rona_msgs::GetFrontierTarget::Response& res);
+
+   void nodeCtrlCallback(const rona_msgs::NodeCtrl& msg);
 
    /**
     * Service to trigger the transmission of the frontiers
@@ -128,6 +130,7 @@ private:
    ros::NodeHandle                  _nh;
 
    ros::Subscriber                  _map_sub;
+   ros::Subscriber                  _sub_node_ctrl;
 
    ros::Publisher                   _sub_map_pub;
    ros::Publisher                   _frontier_pub;
@@ -136,7 +139,6 @@ private:
 
    ros::ServiceServer               _best_target_service;
    ros::ServiceServer               _all_targets_service;
-   ros::Publisher               _transmitt_targets_service;
 
    std::vector<WeightedFrontier>    _frontiers;
 

@@ -37,6 +37,8 @@ private:    //dataelements
    ros::Publisher _pubPath;
    ros::Publisher _pubGrid;
    ros::Publisher _pubGridOb;
+   ros::Publisher _pubMap;
+
    ros::Subscriber _subMap;
    ros::Subscriber _subTarget;
    ros::Subscriber _subReplan;

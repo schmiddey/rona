@@ -77,13 +77,14 @@ FrontierExplorationNode::FrontierExplorationNode(void) :
    _frontier_pub      = _nh.advertise<geometry_msgs::PoseArray>(frontier_topic,  1);
 
    // Subscriber
+   _sub_node_ctrl     = _nh.subscribe("rona/forontier/node_ctrl", 1, &FrontierExplorationNode::nodeCtrlCallback, this);
    _map_sub           = _nh.subscribe(map_topic, 1, &FrontierExplorationNode::mapCallback, this);
    _sub_map_pub       = _nh.advertise<nav_msgs::OccupancyGrid>("sub_map",  1);
    _frontier_grid_pub = _nh.advertise<nav_msgs::GridCells>("frontier_grid", 1);
 
    // Service Server
    _best_target_service       = private_nh.advertiseService("get_target", &FrontierExplorationNode::getFrontierServiceCB, this);
-   _transmitt_targets_service = _nh.advertise<rona_msgs::NodeCtrl>("frontier/node_control", 1);
+   //_transmitt_targets_service = _nh.advertise<rona_msgs::NodeCtrl>("frontier/node_control", 1);
 
    _viz.setNodeHandle(_nh);
 
@@ -115,7 +116,7 @@ void FrontierExplorationNode::findFrontiers(void)
    {
       _frontierFinder->calculateFrontiers();
 
-      ROS_INFO("----------- Frontier Finder --------------- NUM_FRONTIER: %d", _frontierFinder->getFrontiers().size());
+      ROS_INFO("----------- Frontier Finder --------------- NUM_FRONTIER: %d", (int)_frontierFinder->getFrontiers().size());
 
       //_frontiers = _frontierFinder->getFrontiers();
 
@@ -192,28 +193,34 @@ void FrontierExplorationNode::publishMarkers(void)
 {
 }
 
-bool FrontierExplorationNode::callback_srv_transmittTargets(rona_msgs::NodeCtrl& req){
-
-   if(req.cmd == req.START)
-   {
-      _mode = frontier::RUN;
-   }
-   else if(req.cmd == req.SINGLESHOT)
-   {
-      _mode = frontier::SINGLESHOT;
-   }
-   else if(req.cmd == req.STOP)
-   {
-      _mode = frontier::STOP;
-   }
-//   else
-//   {
-//      res.accepted = false;
-//   }
-//   ROS_INFO("ohm_frontier ->  callback NodeControll serivce: accept: %s", (res.accepted) ? "true" : "false");
-
-   return true;
+void FrontierExplorationNode::nodeCtrlCallback(const rona_msgs::NodeCtrl& msg)
+{
+  ROS_INFO("rona fontier: NodeControll: %s", msg.cmd_str.c_str());
+  if(msg.cmd == msg.START)
+  {
+     _mode = frontier::RUN;
+  }
+  else if(msg.cmd == msg.SINGLESHOT)
+  {
+     _mode = frontier::SINGLESHOT;
+  }
+  else if(msg.cmd == msg.STOP)
+  {
+     _mode = frontier::STOP;
+  }
 }
+
+//bool FrontierExplorationNode::callback_srv_transmittTargets(rona_msgs::NodeCtrl& req){
+//
+//
+////   else
+////   {
+////      res.accepted = false;
+////   }
+////   ROS_INFO("ohm_frontier ->  callback NodeControll serivce: accept: %s", (res.accepted) ? "true" : "false");
+//
+//   return true;
+//}
 
 } /* namespace autonohm */
 
