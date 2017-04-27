@@ -10,7 +10,7 @@
 #include <tf/tf.h>
 #include <tf/transform_listener.h>
 
-namespace autonohm {
+namespace rona {
 
 FrontierController::FrontierController(void)
 {

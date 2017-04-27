@@ -15,9 +15,9 @@
 #include <tf/LinearMath/Vector3.h>
 
 /**
- * @namespace autonohm
+ * @namespace rona
  */
-namespace autonohm {
+namespace rona {
 
 /**
  * @class   Frontier
@@ -56,6 +56,6 @@ struct FrontierPoint {
    tf::Vector3 orientation;
 };
 
-} /* namespace autonohm */
+} /* namespace rona */
 
 #endif /* OHM_FRONTIER_EXPLORATION_SRC_FRONTIER_H_ */

@@ -7,7 +7,7 @@
 
 #include <rona_lib/exploration/Visualization.h>
 
-namespace autonohm {
+namespace rona {
 
 namespace frontier {
 
@@ -152,4 +152,4 @@ void Visualization::publishBestFrontier(void)
 }
 
 } /* namespace frontier */
-} /* namespace autonohm */
+} /* namespace rona */

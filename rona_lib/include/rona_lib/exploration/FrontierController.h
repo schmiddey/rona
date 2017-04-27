@@ -15,9 +15,9 @@
 #include "Frontier.h"
 
 /**
- * @namespace  autonohm
+ * @namespace  rona
  */
-namespace autonohm {
+namespace rona {
 
 /**
  * @struct  FrontierControllerConfig

@@ -12,7 +12,7 @@
 
 #include <math.h>       /* atan2 */
 
-namespace autonohm {
+namespace rona {
 namespace frontier {
 Finder::Finder(void) :
       _initialized(false)
@@ -39,7 +39,8 @@ void Finder::setMap(const nav_msgs::OccupancyGrid& map)
 
 void Finder::setConfig(FinderConfig config)
 {
-   _config = config;
+  _initialized = true;
+  _config = config;
 }
 
 
@@ -139,7 +140,7 @@ void Finder::calculateFrontiers(void)
 
             assert(c > 0);
 
-            autonohm::FrontierPoint fp;
+            rona::FrontierPoint fp;
             fp.idx         = idx;
             fp.orientation = orientation / c;
             segment.push_back(fp);
@@ -202,7 +203,7 @@ void Finder::calculateFrontiers(void)
    ROS_DEBUG_STREAM("Found " << segments.size() << " frontieres. ");
 
 
-   for (int i=0; i < segments.size(); i++)
+   for (unsigned int i=0; i < segments.size(); i++)
    {
 
       std::vector<FrontierPoint>& segment = segments[i];
@@ -269,11 +270,11 @@ void Finder::optimizeFrontierIfInUnknown(Frontier& frontier)
 {
    // check if frontier is in unknown terrain
    // get index of frontier position
-   unsigned int x = (frontier.position.x - _map.info.origin.position.x) / _map.info.resolution + 0.555;
-   unsigned int y = (frontier.position.y - _map.info.origin.position.y) / _map.info.resolution + 0.555;
+   unsigned int x = (frontier.position.x - _map.info.origin.position.x) / _map.info.resolution + 0.5;
+   unsigned int y = (frontier.position.y - _map.info.origin.position.y) / _map.info.resolution + 0.5;
 
 
-   unsigned int idx = x*_map.info.width + y;
+//   unsigned int idx = x*_map.info.width + y;
    //ROS_INFO("x: %d, y = %d  ,idx = %d",(int)x, (int)y,(int)idx);
 
    ///@todo make this function recursive
@@ -301,4 +302,4 @@ void Finder::optimizeFrontierIfInUnknown(Frontier& frontier)
 
 
 } /* namespace frontier */
-} /* namespace autonohm */
+} /* namespace rona */

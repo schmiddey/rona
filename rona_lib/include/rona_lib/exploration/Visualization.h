@@ -12,9 +12,9 @@
 #include "Frontier.h"
 
 /**
- * @namespace autonohm
+ * @namespace rona
  */
-namespace autonohm {
+namespace rona {
 /**
  * @namespace frontier
  */
@@ -81,7 +81,7 @@ private:
    visualization_msgs::MarkerArray _markers;
 };
 
-} /* namespace autonohm */
-} /* namespace frontier */
+}
+}
 
 #endif /* OHM_FRONTIER_EXPLORATION_SRC_VISUALIZATION_H_ */

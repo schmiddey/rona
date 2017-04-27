@@ -12,7 +12,7 @@
 #include <nav_msgs/OccupancyGrid.h>
 
 
-namespace autonohm {
+namespace rona {
 
 
 class MapSubsampler
@@ -48,6 +48,6 @@ private:
    nav_msgs::OccupancyGrid    _sub;          //!< output costmap
 };
 
-} /* namespace autonohm */
+} /* namespace rona */
 
 #endif /* OHM_FRONTIER_EXPLORATION_SRC_MAPSUBSAMPLER_H_ */

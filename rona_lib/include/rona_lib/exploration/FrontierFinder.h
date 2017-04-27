@@ -17,9 +17,9 @@
 // std includes
 #include <ostream>
 /**
- * @namespace autonohm
+ * @namespace rona
  */
-namespace autonohm {
+namespace rona {
 
 namespace frontier {
 
@@ -165,6 +165,6 @@ private:
 
 } /* namespace frontier */
 
-} /* namespace autonohm */
+} /* namespace rona */
 
 #endif /* OHM_FRONTIER_EXPLORATION_SRC_Finder_H_ */

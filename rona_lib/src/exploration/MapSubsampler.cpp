@@ -9,7 +9,7 @@
 
 #include <math.h>
 
-namespace autonohm {
+namespace rona {
 
 double round(double number)
 {
@@ -75,4 +75,4 @@ void MapSubsampler::convert(void)
    }
 }
 
-} /* namespace autonohm */
+} /* namespace rona */

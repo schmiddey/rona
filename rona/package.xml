@@ -20,7 +20,7 @@
 
 
   <run_depend>rona_launcher</run_depend>
-  <run_depend>rona_exploration</run_depend>
+  <run_depend>rona_frontier</run_depend>
   <run_depend>rona_lib</run_depend>
   <run_depend>rona_msgs</run_depend>
   <run_depend>sirona</run_depend>
