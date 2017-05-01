@@ -20,13 +20,14 @@
 
 
   <run_depend>rona_launcher</run_depend>
-  <run_depend>rona_frontier</run_depend>
   <run_depend>rona_lib</run_depend>
   <run_depend>rona_msgs</run_depend>
   <run_depend>sirona</run_depend>
   <run_depend>murona</run_depend>
   <run_depend>rona_obstacle</run_depend>
   <run_depend>rona_move</run_depend>
+  <run_depend>rona_frontier</run_depend>
+  <run_depend>rona_exploration</run_depend>
   <run_depend>rona_test</run_depend>
 
 

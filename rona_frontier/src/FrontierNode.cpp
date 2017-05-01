@@ -16,7 +16,7 @@ FrontierNode::FrontierNode()
 //    privNh.param<int>(    "int_val"    ,    int_val   ,   1.0);
 //    privNh.param<bool>(   "bool_val"   ,    bool_val  ,   true);
 
-    privNh.param(         "map_frame" ,    map_frame,   std::string("map"));
+    privNh.param(         "map_frame"  ,    map_frame,   std::string("map"));
     privNh.param(         "robot_frame" ,  robot_frame,   std::string("base_footprint"));
 
     rona::frontier::FinderConfig config;

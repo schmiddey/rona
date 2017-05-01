@@ -112,7 +112,7 @@ include_directories(
 # )
 
 ## Declare a cpp executable
-add_executable(rona_exploration_node    src/FrontierExplorationNode.cpp)
+add_executable(rona_exploration_node    src/ExplorationNode.cpp)
 
 #add_executable(map_dummy                      src/map_dummy_generator.cpp)
 

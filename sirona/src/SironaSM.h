@@ -28,6 +28,10 @@
 #include <rona_msgs/State.h>
 
 
+
+/**
+ * @todo Add proving current map for path collitoins ... (as parameter yes or no)
+ */
 class SironaSM
 {
 private:    //dataelements
@@ -77,7 +81,9 @@ private:    //dataelements
        PAUSED,
        ARRIVED,
        ABORTED,
-       BLOCKED,   //when could not plan
+       UNREACHABLE,
+//       BLOCKED,   //when could not plan
+
     };
 
     State _state;
@@ -126,6 +132,8 @@ private:    //functions
     void pauseMove();
     void pause_auto_unpauseMove();
     void unpauseMove();
+
+    void setState(const State state);
 };
 
 #endif /* SIRONASM_H_ */

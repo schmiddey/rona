@@ -179,6 +179,14 @@ void GridMap::init()
    _parentDist[5] = PIXEL_LONG_COST  * _grid->getCellSize();
    _parentDist[6] = PIXEL_SHORT_COST * _grid->getCellSize();
    _parentDist[7] = PIXEL_LONG_COST  * _grid->getCellSize();
+//   _parentDist[0] = PIXEL_SHORT_COST * _grid->getCellSize();
+//   _parentDist[1] = PIXEL_SHORT_COST * _grid->getCellSize();
+//   _parentDist[2] = PIXEL_SHORT_COST * _grid->getCellSize();
+//   _parentDist[3] = PIXEL_SHORT_COST * _grid->getCellSize();
+//   _parentDist[4] = PIXEL_SHORT_COST * _grid->getCellSize();
+//   _parentDist[5] = PIXEL_SHORT_COST * _grid->getCellSize();
+//   _parentDist[6] = PIXEL_SHORT_COST * _grid->getCellSize();
+//   _parentDist[7] = PIXEL_SHORT_COST * _grid->getCellSize();
 }
 
 } /* namespace map */

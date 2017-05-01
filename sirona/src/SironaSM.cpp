@@ -42,7 +42,7 @@ SironaSM::SironaSM()
    privNh.param        ("pub_re_rmob_topic"    ,pub_re_rmob_topic    ,std::string("rona/plan/rm_obstacle"));
    privNh.param        ("pub_replan_topic"     ,pub_replan_topic     ,std::string("rona/plan/replan"      ));
    privNh.param        ("pub_path_topic"       ,pub_path_topic       ,std::string("rona/move/path"        ));
-   privNh.param        ("pub_state_topic"      ,pub_state_topic      ,std::string("rona/state"            ));
+   privNh.param        ("pub_state_topic"      ,pub_state_topic      ,std::string("rona/sirona/state"            ));
    privNh.param        ("pub_move_ctrl_topic"  ,pub_move_ctrl        ,std::string("rona/move/ctrl"        ));
    privNh.param        ("sub_target_topic"     ,sub_target_topic     ,std::string("/move_base_simple/goal"));
    privNh.param        ("sub_addob_topic"      ,sub_addob_topic      ,std::string("rona/add_obstacle"     ));
@@ -95,9 +95,10 @@ SironaSM::SironaSM()
    _moveTimer = _nh.createTimer(_stopDuration, &SironaSM::timer_moveCallback, this, true, false);
    _moveTimer.stop();
 
-   _state = State::IDLE;
-   _state_msg.state = _state_msg.IDLE;
-   _state_msg.state_str = "IDLE";
+   _state = State::IDLE;  //only to satisfy eclipse
+//   _state_msg.state = _state_msg.IDLE;
+//   _state_msg.state_str = "IDLE";
+   this->setState(State::IDLE);
 
    _oldMoveState = false;
 }
@@ -230,20 +231,19 @@ void SironaSM::sub_pathCallback(const nav_msgs::Path& msg)
    {//start moving only when normal mode
       if(msg.poses.size() <= 1)
       {//empty
-         _state = State::ABORTED;
-         _state_msg.state = _state_msg.ABORTED;
-         _state_msg.state_str = "ABORTED";
+         this->setState(State::UNREACHABLE);
 
          this->stopMove();
       }
       else
       {
          this->startMove();
-         _state = State::MOVING;
+         this->setState(State::MOVING);
       }
    }
    else if(type == PathType::REPLAN)
    {
+     //todo when replan fails .... set state to aport
       if(_state == State::MOVING)
       {
          this->startMove();
@@ -261,9 +261,8 @@ void SironaSM::sub_stateMoveCallback(const std_msgs::Bool& msg)
    //prove state of move
    if(!_oldMoveState && msg.data)
    {//arrived edge
-      _state = State::ARRIVED;
-      _state_msg.state = _state_msg.ARRIVED;
-      _state_msg.state_str = "ARRIVED";
+      this->setState(State::ARRIVED);
+
    }
    _oldMoveState = msg.data;
 }
@@ -294,9 +293,8 @@ void SironaSM::pauseMove()
       return;
    }
    ROS_INFO("rona_sm -> PauseMove");
-   _state = State::PAUSED;
-   _state_msg.state = _state_msg.PAUSED;
-   _state_msg.state_str = "PAUSED";
+   this->setState(State::PAUSED);
+
 
    rona_msgs::NodeCtrl msg;
    msg.cmd = msg.PAUSE;
@@ -319,9 +317,7 @@ void SironaSM::unpauseMove()
       return;
    }
    ROS_INFO("rona_sm -> UnPauseMove");
-   _state = State::MOVING;
-   _state_msg.state = _state_msg.MOVING;
-   _state_msg.state_str = "MOVING";
+   this->setState(State::MOVING);
 
    rona_msgs::NodeCtrl msg;
    msg.cmd = msg.CONTINUE;
@@ -329,6 +325,48 @@ void SironaSM::unpauseMove()
    _pubMoveCtrl.publish(msg);
 }
 
+void SironaSM::setState(const State state)
+{
+  _state = state;
+
+  switch (state) {
+    case State::IDLE:
+      _state_msg.state = _state_msg.IDLE;
+      _state_msg.state_str = "IDLE";
+      break;
+    case State::MOVING:
+      _state_msg.state = _state_msg.MOVING;
+      _state_msg.state_str = "MOVING";
+      break;
+    case State::PAUSED:
+      _state_msg.state = _state_msg.PAUSED;
+      _state_msg.state_str = "PAUSED";
+      break;
+    case State::ARRIVED:
+      _state_msg.state = _state_msg.ARRIVED;
+      _state_msg.state_str = "ARRIVED";
+      break;
+    case State::ABORTED:
+      _state_msg.state = _state_msg.ABORTED;
+      _state_msg.state_str = "ABORTED";
+      break;
+    case State::UNREACHABLE:
+      _state_msg.state = _state_msg.UNREACHABLE;
+      _state_msg.state_str = "UNREACHABLE";
+      break;
+//    case State::BLOCKED:
+//      _state_msg.state = _state_msg.ABORTED;
+//      _state_msg.state_str = "ABORTED";
+//      break;
+    default:
+      ROS_ERROR("Undefined sate in Sirona SM setState()");
+      break;
+  }
+  //todo
+  _state_msg.estimatedArival = 13.37;
+  _state_msg.targetDistance = 47.11;
+
+}
 
 //------------------------------------------------------------------------------
 //-- main --
