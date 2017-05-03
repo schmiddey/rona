@@ -105,6 +105,8 @@ private:
   std::string _map_frame;
 
   ros::Time _t_targe_start;
+
+  bool _gotEmptyFrontiers;
 };
 
 #endif /* EXPLORATIONNODE_H_ */

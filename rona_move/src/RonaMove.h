@@ -57,7 +57,7 @@ private:    //dataelements
     ros::Publisher _pub_marker;
 
     ros::Subscriber _sub_path;
-    //ros::Subscriber _sub_pause;
+    ros::Subscriber _sub_pause;
     ros::Subscriber _sub_ctrl;
 
     ros::ServiceServer _srv_reverse_on;
@@ -143,7 +143,7 @@ private:    //functions
      *
      * @param msg
      */
-    //void subPause_callback(const std_msgs::Bool& msg);
+    void subPause_callback(const std_msgs::Bool& msg);
 
 
     /**
@@ -155,6 +155,7 @@ private:    //functions
     bool srvReverseOn_callback(std_srvs::EmptyRequest& req, std_srvs::EmptyResponse& res);
     bool srvReverseOff_callback(std_srvs::EmptyRequest& req, std_srvs::EmptyResponse& res);
     bool srvReverseSw_callback(std_srvs::EmptyRequest& req, std_srvs::EmptyResponse& res);
+
 };
 
 #endif /* TEMPLATE_H_ */

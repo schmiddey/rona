@@ -14,6 +14,8 @@ ExplorationNode::ExplorationNode()
 //  privNh.param<int>("int_val", int_val, 1.0);
 //  privNh.param<bool>("bool_val", bool_val, true);
 
+  _map_frame = map_frame;
+
   //init publisher
   //_pub = _nh.advertise<std_msgs::Bool>("pub_name", 1);
   _pubTarget = _nh.advertise<geometry_msgs::PoseStamped>("rona/exploration/target", 1);
@@ -34,7 +36,7 @@ ExplorationNode::ExplorationNode()
 
   _sironaState.state = -1;
   _sironaStateOld.state = -1;
-
+  _gotEmptyFrontiers = false;
 }
 
 ExplorationNode::~ExplorationNode()
@@ -85,7 +87,7 @@ void ExplorationNode::loop_callback(const ros::TimerEvent& e)
     //if abort after moving new frontiers
     //if arrived new Frontiers
 
-  const double T_MIN = 4.0;
+  const double T_MIN = 2.0;
 
   switch (_state) {
     case exploration::IDLE:
@@ -103,7 +105,14 @@ void ExplorationNode::loop_callback(const ros::TimerEvent& e)
     case exploration::WAIT_FRONTIERS:
     {
       if(_frontiers.poses.empty())
+      {
+        if(_gotEmptyFrontiers)
+        {
+          this->setState(exploration::READY);
+          break;
+        }
         break;
+      }
 
       //got frontiers
       ROS_INFO("rona_exploratoin -> Got Frontiers");
@@ -208,7 +217,13 @@ void ExplorationNode::subSironaState_callback(const rona_msgs::State& msg)
 void ExplorationNode::subFrontiers(const geometry_msgs::PoseArray& msg)
 {
   _frontiers = msg; //copy
-  std::reverse(_frontiers.poses.begin(), _frontiers.poses.end());
+  ROS_INFO("exploration gotFrontiers: frontiersize: %d", _frontiers.poses.size());
+  if(_frontiers.poses.empty())
+  {
+    ROS_INFO("got empty frontiers");
+    _gotEmptyFrontiers = true;
+  }
+  //std::reverse(_frontiers.poses.begin(), _frontiers.poses.end());
 }
 
 

@@ -383,10 +383,20 @@ void RonaMove::subPath_callback(const nav_msgs::Path& msg_)
 
 
 
-//void RonaMove::subPause_callback(const std_msgs::Bool& msg)
-//{
-//   _pause = msg.data;
-//}
+void RonaMove::subPause_callback(const std_msgs::Bool& msg)
+{
+  if(msg.data)
+  {
+    _state = State::PAUSE;
+  }
+  else
+  {
+    if(_state == State::PAUSE)
+    {
+       _state = State::MOVE;
+    }
+  }
+}
 
 
 void RonaMove::subCtrl_callback(const rona_msgs::NodeCtrl& msg)

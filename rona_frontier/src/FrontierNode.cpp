@@ -67,7 +67,8 @@ void FrontierNode::findFrontiers(void)
      _frontierFinder.calculateFrontiers();
 
      ROS_INFO("----------- Frontier Finder --------------- NUM_FRONTIER: %d", (int)_frontierFinder.getFrontiers().size());
-
+     //clear frontiers if no found... was error : always send frontiers from last call if in current none was found...
+     _frontiers.clear();
      //_frontiers = _frontierFinder->getFrontiers();
 
      if(_frontierFinder.getFrontiers().size())
@@ -79,6 +80,7 @@ void FrontierNode::findFrontiers(void)
         _frontiers = _frontierController.getWeightedFrontiers();
         //this->publishFrontiers();
      }
+
   }
   else
   {
@@ -155,14 +157,16 @@ void FrontierNode::sub_map_callback(const nav_msgs::OccupancyGrid& map)
 void FrontierNode::dynreconfig_callback(rona_frontier::FrontierConfig& config, uint32_t level)
 {
   rona::FrontierControllerConfig cfg;
-  cfg.euclideanDistanceFactor = 0; //config.dist_factor;
+  cfg.euclideanDistanceFactor = config.dist_factor;
   cfg.orientationFactor       = config.orientation_factor;
-  cfg.sizeFactor              = 8.0; //config.size_factor;
+  cfg.sizeFactor              = config.size_factor;
+  cfg.maxEuclideanDistance    = config.max_dist_threshold;
 
   ROS_INFO_STREAM("changed configuration: "                              << std::endl <<
                   "distance factor :   "  << cfg.euclideanDistanceFactor << std::endl <<
                   "size factor:        "  << cfg.orientationFactor       << std::endl <<
-                  "orientation factor: "  << cfg.sizeFactor              << std::endl);
+                  "orientation factor: "  << cfg.sizeFactor              << std::endl <<
+                  "max_dist_thresh:    "  << cfg.maxEuclideanDistance << std::endl);
 
 
   _frontierController.setConfig(cfg);
