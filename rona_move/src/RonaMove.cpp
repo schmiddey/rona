@@ -78,7 +78,7 @@ RonaMove::RonaMove()
     //inti subscriber
     _sub_path = _nh.subscribe(sub_name_path , 10, &RonaMove::subPath_callback, this);
     _sub_ctrl = _nh.subscribe(sub_ctrl_topic, 1000, &RonaMove::subCtrl_callback, this);
-    //_sub_pause = _nh.subscribe(sub_name_pause, 1, &RonaMove::subPause_callback, this);
+    _sub_pause = _nh.subscribe("rona/move/pause", 1, &RonaMove::subPause_callback, this);
 
     _srv_reverse_on  = _nh.advertiseService("/rona/move/set_reverse_on", &RonaMove::srvReverseOn_callback, this);
     _srv_reverse_off = _nh.advertiseService("/rona/move/set_reverse_off", &RonaMove::srvReverseOff_callback, this);
