@@ -18,6 +18,7 @@
 #include <rona_msgs/NodeCtrl.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <nav_msgs/Path.h>
+#include <visualization_msgs/Marker.h>
 
 #include <rona_lib/Utility.h>
 #include <rona_lib/Map/Operations.h>
@@ -38,6 +39,7 @@ private:    //dataelements
     ros::Publisher _pubPath;
     ros::Publisher _pubState;
     ros::Publisher _pubMoveCtrl;
+    ros::Publisher _pubMarker;
 
     ros::Subscriber _subSetEndPoint;
     ros::Subscriber _subStart;
@@ -103,6 +105,8 @@ private:    //functions
 
     void startMove();
     void swReverseMove();
+
+    void pubMarker();
 
 };
 

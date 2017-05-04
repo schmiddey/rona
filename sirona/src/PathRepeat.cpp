@@ -27,6 +27,7 @@ PathRepeat::PathRepeat()
     _pubPath = _nh.advertise<nav_msgs::Path>("rona/move/path", 1);
     _pubState = _nh.advertise<std_msgs::String>("path_repeat/state", 1);
     _pubMoveCtrl    = _nh.advertise<rona_msgs::NodeCtrl>("rona/move/ctrl", 10);
+    _pubMarker      = _nh.advertise<visualization_msgs::Marker>("rona/path_repeat/end_marker", 1);
 
     //inti subscriber
     //_sub = _nh.subscribe("subname", 1, &Template::subCallback, this);
@@ -76,7 +77,7 @@ void PathRepeat::loop_callback(const ros::TimerEvent& e)
    //do loop stuff here!!!
    std_msgs::String msg;
    msg.data = _state_str.c_str();
-
+   this->pubMarker();
    _pubState.publish(msg);
 }
 
@@ -262,10 +263,41 @@ void PathRepeat::swReverseMove()
 
 }
 
+void PathRepeat::pubMarker()
+{
+  if(_state == NodeState::IDLE)
+  {
+    return;
+  }
+
+  visualization_msgs::Marker m;
+
+  geometry_msgs::Vector3 scale_m;
+  scale_m.x = 0.4;
+  scale_m.y = 0.4;
+  scale_m.z = 0.5;
+
+  std_msgs::ColorRGBA color;
+  color.r = 1;
+  color.g = 0;
+  color.b = 0;
+  color.a = 1;
+
+  m.header.frame_id = _mapFrame;
+  m.id = 0;
+  m.type = m.CYLINDER;
+  m.action = m.ADD;
+  m.pose = _endPose;
+  m.scale = scale_m;
+  m.color = color;
+
+  _pubMarker.publish(m);
+}
+
 // ------------- main ---------------
 int main(int argc, char *argv[])
 {
-    ros::init(argc, argv, "ohm_path_repeat_node");
+    ros::init(argc, argv, "sirona_path_repeat_node");
     ros::NodeHandle nh("~");
 
     PathRepeat node;

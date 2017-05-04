@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   tf
   rona_lib
+  visualization_msgs
 )
 
 find_package(cmake_modules REQUIRED)
