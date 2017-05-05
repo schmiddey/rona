@@ -6,7 +6,7 @@
 	</node>
 
 	<node name="rona_move_node" pkg="rona_move" type="rona_move_node">
-      <param name="pub_cmd_vel_topic"			type="string" value="cmd_vel"           />
+      <param name="pub_cmd_vel_topic"			type="string" value="vel/cmd"           />
       <param name="pub_state_topic"          type="string" value="rona/move/state"   />
       <param name="pub_process_topic"        type="string" value="rona/move/process" />
       <param name="sub_path_topic"           type="string" value="rona/move/path"    />
