@@ -7,7 +7,8 @@ PathRepeat::PathRepeat()
     ros::NodeHandle privNh("~");
     std::string map_frame;
     std::string robot_frame;
-    //double      double_val;
+    double      start_x;
+    double      start_y;
     //int         int_val;
     //bool        bool_val;
 
@@ -17,7 +18,8 @@ PathRepeat::PathRepeat()
     //privNh.param<bool>(   "bool_val"   ,    bool_val  ,   true);
     privNh.param("map_frame" ,    map_frame,     std::string("map"));
     privNh.param("robot_frame" ,  robot_frame,   std::string("base_footprint"));
-
+    privNh.param<double>( "start_x" ,    start_x,   0.0);
+    privNh.param<double>( "start_y" ,    start_y,   0.0);
 
     _mapFrame = map_frame;
     _robotFrame = robot_frame;
@@ -44,8 +46,8 @@ PathRepeat::PathRepeat()
     _gotNewPose = false;
     _statePathCtrl_old = false;
 
-    _startPose.position.x = 4.5;
-    _startPose.position.y = 2.5;
+    _startPose.position.x = start_x;
+    _startPose.position.y = start_y;
 
 }
 
