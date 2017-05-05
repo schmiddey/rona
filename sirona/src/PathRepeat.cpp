@@ -181,6 +181,7 @@ void PathRepeat::subStart_callback(const std_msgs::Bool& msg)
          ROS_ERROR("PathRepeat -> Do Nothing!!!!");
          return;
       }
+      this->swReverseMove();
    }
    else
    {
