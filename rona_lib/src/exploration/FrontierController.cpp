@@ -50,8 +50,8 @@ void FrontierController::findBestFrontier(void)
 
    }
 
-   const double x = transform.getOrigin().x();
-   const double y = transform.getOrigin().y();
+   const double x = 0.0;//transform.getOrigin().x();
+   const double y = 0.0;//transform.getOrigin().y();
 
    ROS_INFO(" frontier ------------ x: %f, y: %f", x, y);
 
