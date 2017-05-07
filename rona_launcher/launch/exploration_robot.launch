@@ -3,7 +3,7 @@
    <!-- Path controller -->
    <!--node name="rona_move_node" pkg="rona_move" type="rona_move_node" output="screen"-->
    <node name="rona_move_node" pkg="rona_move" type="rona_move_node">
-      <param name="pub_cmd_vel_topic"        type="string" value="/robot0/cmd_vel"           />
+      <param name="pub_cmd_vel_topic"        type="string" value="vel/cmd"           />
       <param name="pub_state_topic"          type="string" value="rona/move/state"   />
       <param name="pub_process_topic"        type="string" value="rona/move/process" />
       <param name="sub_path_topic"           type="string" value="rona/move/path"    />
@@ -26,7 +26,7 @@
 
   <!-- Path planner -->
   <node name="sirona_plan_node" pkg="sirona" type="sirona_plan_node" output="screen">
-      <param name="sub_map_topic"              type="string" value="map_slam"                       />
+      <param name="sub_map_topic"              type="string" value="map"                       />
       <param name="sub_target_topic"           type="string" value="rona/plan/target"          />
       <param name="sub_replan_topic"           type="string" value="rona/plan/replan"          />
       <param name="sub_add_obstacle_topic"     type="string" value="rona/plan/add_obstacle"    />
@@ -101,7 +101,7 @@
       <param name="map_frame"          type="string" value="map"   />
       <param name="robot_frame"        type="string" value="base_footprint"     />
 	<!-- remap from map to map_slam for subscribing -->
-	 <remap from="map" to="map_slam"/>     
+	 <!--remap from="map" to="map_slam"/-->     
       
    </node>  
 

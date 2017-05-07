@@ -179,7 +179,8 @@ void ExplorationNode::loop_callback(const ros::TimerEvent& e)
       if(_sironaState.state == _sironaState.ABORTED &&  d_target_s > T_MIN )
       {
         //if abort after moving new frontiers
-        //todo in Sirona SM -> or cut path for exploration...
+        this->requestFrontiers();
+        this->setState(exploration::WAIT_FRONTIERS);
 
         break;
       }

@@ -15,6 +15,7 @@
 #include <std_msgs/Bool.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <nav_msgs/Path.h>
+#include <nav_msgs/GridCells.h>
 #include <tf/transform_listener.h>
 
 #include <rona_lib/Map/GridMap.h>
@@ -50,6 +51,7 @@ private:    //dataelements
     ros::Subscriber _subRmOb;
     ros::Subscriber _subPath;
     ros::Subscriber _subStateMove;
+    ros::Subscriber _subObstacleGrid;
 
     ros::Timer _loopTimer;
 
@@ -125,7 +127,7 @@ private:    //functions
     void sub_rmObCallback(const std_msgs::String& msg);
     void sub_pathCallback(const nav_msgs::Path& msg);
     void sub_stateMoveCallback(const std_msgs::Bool& msg);
-
+    void sub_obstacleGrid(const nav_msgs::GridCells& msg);
 
     void startMove();
     void stopMove();

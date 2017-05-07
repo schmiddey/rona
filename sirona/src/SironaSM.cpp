@@ -211,6 +211,7 @@ void SironaSM::sub_rmObCallback(const std_msgs::String& msg)
 
 void SironaSM::sub_pathCallback(const nav_msgs::Path& msg)
 {
+   nav_msgs::Path path_t = msg;
    ROS_INFO("rona_sm -> PathCallback");
 
    if(_pathTypeQueue.empty())
@@ -225,11 +226,18 @@ void SironaSM::sub_pathCallback(const nav_msgs::Path& msg)
    ROS_INFO("sirona_smnode-> type of callback: %s", (type == PathType::NORMAL ? "NORMAL" : "REPLAN"));
 
    //repub path to move
-   _pubPathMove.publish(msg);
+
+   //hack for exploratoin...
+   if(path_t.poses.size() > 40)
+   {//cut path ... last 75 elements...
+     path_t.poses.erase((path_t.poses.end() - 30), path_t.poses.end());
+   }
+   //hack end...
+   _pubPathMove.publish(path_t);
 
    if(type == PathType::NORMAL)
    {//start moving only when normal mode
-      if(msg.poses.size() <= 1)
+      if(path_t.poses.size() <= 1)
       {//empty
          this->setState(State::UNREACHABLE);
 
@@ -244,10 +252,16 @@ void SironaSM::sub_pathCallback(const nav_msgs::Path& msg)
    else if(type == PathType::REPLAN)
    {
      //todo when replan fails .... set state to aport
-      if(_state == State::MOVING)
-      {
-         this->startMove();
-      }
+     if(path_t.poses.size() <= 1)
+     {//empty
+        this->setState(State::ABORTED);
+
+        this->stopMove();
+     }
+     else if(_state == State::MOVING)
+     {
+       this->startMove();
+     }
    }
 }
 
@@ -265,6 +279,19 @@ void SironaSM::sub_stateMoveCallback(const std_msgs::Bool& msg)
 
    }
    _oldMoveState = msg.data;
+}
+
+void SironaSM::sub_obstacleGrid(const nav_msgs::GridCells& msg)
+{
+  //get gridcells
+
+  //prove conflict with path within given distance ...
+
+  //if collission
+    //abort
+  //else
+    //do nothing ... all ok...
+
 }
 
 

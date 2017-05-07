@@ -225,7 +225,7 @@ void RonaMove::doPathControl(void)
 
    } catch (tf::TransformException& e)
    {
-      ROS_ERROR("ohm_path_control -> Exeption at tf: %s", e.what());
+      ROS_ERROR("rona_move -> Exeption at tf: %s", e.what());
       return;
    }
 
@@ -281,7 +281,7 @@ void RonaMove::subPath_callback(const nav_msgs::Path& msg_)
    //path with length 1 is invalid, if invalid then clear
    if(msg.poses.size() <= 1)
    {
-      ROS_INFO("Rona_move-> got emptyPath");
+      ROS_INFO("rona_move-> got emptyPath");
       _state = State::STOP;
       msg.poses.clear();
    }
@@ -291,7 +291,7 @@ void RonaMove::subPath_callback(const nav_msgs::Path& msg_)
    path_comp.resize(msg.poses.size());
    path_trunc.resize(msg.poses.size());
 
-   ROS_INFO("ohm_path_control -> GOT Path");
+   ROS_INFO("rona_move -> GOT Path");
 
    //set path
    for(unsigned int i=0; i<msg.poses.size(); i++)
@@ -321,7 +321,7 @@ void RonaMove::subPath_callback(const nav_msgs::Path& msg_)
 
       } catch (tf::TransformException& e)
       {
-         ROS_ERROR("ohm_path_control -> Exeption at tf: %s", e.what());
+         ROS_ERROR("rona_move -> Exeption at tf: %s", e.what());
          tf_rdy = false;
       }
    }while(!tf_rdy);
