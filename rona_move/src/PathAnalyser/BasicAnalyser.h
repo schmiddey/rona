@@ -5,8 +5,8 @@
  *      Author: m1ch1
  */
 
-#ifndef OHM_AUTONOMY_SRC_OHM_PATH_CONTROL_SRC_PATHANALYSER_BASICANALYSER_H_
-#define OHM_AUTONOMY_SRC_OHM_PATH_CONTROL_SRC_PATHANALYSER_BASICANALYSER_H_
+#ifndef _PATHANALYSER_BASICANALYSER_H_
+#define _PATHANALYSER_BASICANALYSER_H_
 
 #include "PathAnalyser_base.h"
 #include <cmath>
@@ -32,13 +32,11 @@ public:
          double end_approach);
    virtual ~BasicAnalyser();
 
-   analyser::diff_scale analyse(analyser::pose current_pose);
-
-   double getDetectionRadius() const;
+   analyser::diff_scale analyse(const analyser::pose& current_pose);
 
 private: //functions
    /**
-    * @brief contains the transfere function with a cos(mx)^(2..n)
+    * @brief contains the transfer function with a cos(mx)^(2..n)
     *
     * @param cos_pwr    -> power of cos(mx) must be >= 2
     * @param cos_factor -> factor of x in cos
@@ -46,8 +44,6 @@ private: //functions
     * @return  scalefactor 0..1
     */
    double scaleFnk_cos_n(unsigned int cos_pwr, double cos_factor, double value);
-
-   int getDirection(Vector3d p, Vector3d ori);
 
    double getLinFactor_dist(double distance);
 
@@ -70,4 +66,4 @@ private: //dataelements
 
 } /* namespace analyser */
 
-#endif /* OHM_AUTONOMY_SRC_OHM_PATH_CONTROL_SRC_PATHANALYSER_BASICANALYSER_H_ */
+#endif /* _PATHANALYSER_BASICANALYSER_H_ */
