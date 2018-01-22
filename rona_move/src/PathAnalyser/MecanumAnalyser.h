@@ -8,14 +8,17 @@
 #ifndef MECANUMANALYSER_H_
 #define MECANUMANALYSER_H_
 
+#include <iostream>
+
 #include "PathAnalyser_base.h"
+
 
 namespace analyser{
 
 class MecanumAnalyser : public PathAnalyser_base
 {
 public:
-  MecanumAnalyser();
+  MecanumAnalyser(const double target_radius, const double target_radius_final);
   virtual ~MecanumAnalyser();
 
   virtual analyser::diff_scale analyse(const analyser::pose& current_pose);

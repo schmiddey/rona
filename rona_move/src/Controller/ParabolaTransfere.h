@@ -26,7 +26,7 @@ public:
          double parabola_ang_fac);
    virtual ~ParabolaTransfere();
 
-   virtual controller::velocity control(double linear, double angular);
+   virtual controller::velocity control(double linear_x, double linear_y, double angular);
 
 private: //functions
    double parabola(double scale, double value, double max_vale);

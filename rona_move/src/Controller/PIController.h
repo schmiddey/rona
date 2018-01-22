@@ -37,7 +37,7 @@ public:
    virtual ~PIController()
    {}
 
-   virtual controller::velocity control(double linear, double angular)
+   virtual controller::velocity control(double linear_x, double linear_y, double angular)
    {
       controller::velocity vel;
 
@@ -47,7 +47,7 @@ public:
 
 
       vel.angular = std::abs(ang) > _max_vel_ang ? _max_vel_ang * sng : ang;
-      vel.linear = this->lin(_lin_fac, linear, _max_vel_lin);
+      vel.linear = this->lin(_lin_fac, linear_x, _max_vel_lin);
       _ang_err_old = angular;
       _ang_vel_old = ang;
 

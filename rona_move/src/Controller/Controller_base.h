@@ -12,7 +12,8 @@ namespace controller
 {
 
 typedef struct {
-   double linear;
+   double linear_x;
+   double linear_y;
    double angular;
 } velocity;
 
@@ -22,7 +23,7 @@ public:
    Controller_base() {}
    virtual ~Controller_base() {}
 
-   virtual controller::velocity control(double linear, double angular) = 0;
+   virtual controller::velocity control(double linear_x, double linear_y, double angular) = 0;
 
 };
 

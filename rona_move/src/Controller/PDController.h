@@ -36,14 +36,14 @@ public:
    virtual ~PDController()
    {}
 
-   virtual controller::velocity control(double linear, double angular)
+   virtual controller::velocity control(double linear_x, double linear_y, double angular)
    {
       controller::velocity vel;
 
       double ang = this->pd_control(angular);
 
       vel.angular = ang;
-      vel.linear = this->lin(_lin_fac, linear, _max_vel_lin);
+      vel.linear_x = this->lin(_lin_fac, linear_x, _max_vel_lin);
       _ang_err_old = angular;
 
       return vel;

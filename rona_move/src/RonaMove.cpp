@@ -1,5 +1,6 @@
 
 #include "PathAnalyser/BasicAnalyser.h"
+#include "PathAnalyser/MecanumAnalyser.h"
 #include "Controller/ParabolaTransfere.h"
 #include "Controller/PDController.h"
 #include "RonaMove.h"
@@ -22,6 +23,7 @@ RonaMove::RonaMove()
   std::string tf_map_frame;
   std::string tf_robot_frame;
   std::string tf_robot_reverse_frame;
+  std::string kinematic;
 
   double vel_lin_max;
   double vel_ang_max;
@@ -49,6 +51,7 @@ RonaMove::RonaMove()
   privNh.param        ("map_frame"            ,   tf_map_frame           , std::string("map"               ));
   privNh.param        ("robot_frame"          ,   tf_robot_frame         , std::string("base_footprint"    ));
   privNh.param        ("robot_reverse_frame"  ,   tf_robot_reverse_frame , std::string("base_footprint_reverse"    ));
+  privNh.param        ("kinematic"            ,   kinematic              , std::string("differential"));                  //mecanum
   privNh.param<double>("vel_lin_max"          ,   vel_lin_max            , 0.4  );
   privNh.param<double>("vel_ang_max"          ,   vel_ang_max            , 0.8  );
   privNh.param<double>("target_radius"        ,   target_radius          , 0.24 );
@@ -90,13 +93,35 @@ RonaMove::RonaMove()
   _srv_reverse_sw = _nh.advertiseService("/rona/move/set_reverse_sw", &RonaMove::srvReverseSw_callback, this);
 
 
-//  _pathAnalyser = std::make_unique<analyser::BasicAnalyser>(0.24, 0.1, 4, 1, 0.1, 1.0);
-  _pathAnalyser = std::make_unique<analyser::BasicAnalyser>(target_radius, target_radius_final, cos_pwr_n, cos_fac_n, ang_reached_range, lin_end_approach);
-  _pathAnalyser->setDoEndRotate(do_endrotate);
+  if(kinematic == "differential")
+  {
+    ROS_INFO("Init differential");
+    //  _pathAnalyser = std::make_unique<analyser::BasicAnalyser>(0.24, 0.1, 4, 1, 0.1, 1.0);
+      _pathAnalyser = std::make_unique<analyser::BasicAnalyser>(target_radius, target_radius_final, cos_pwr_n, cos_fac_n, ang_reached_range, lin_end_approach);
+      _pathAnalyser->setDoEndRotate(do_endrotate);
 
-  _controller = std::make_unique<controller::ParabolaTransfere>(vel_lin_max, vel_ang_max, lin_ctrl_scale, ang_ctrl_scale);
-//  _controller = std::make_unique<controller::PIController>(vel_lin_max, vel_ang_max, lin_ctrl_scale, 1.0/15.0, 4, 5);
-//  _controller = std::make_unique<controller::PDController>(vel_lin_max, vel_ang_max, lin_ctrl_scale, 0.2, 1.0/15.0, 2);
+      _controller = std::make_unique<controller::ParabolaTransfere>(vel_lin_max, vel_ang_max, lin_ctrl_scale, ang_ctrl_scale);
+    //  _controller = std::make_unique<controller::PIController>(vel_lin_max, vel_ang_max, lin_ctrl_scale, 1.0/15.0, 4, 5);
+    //  _controller = std::make_unique<controller::PDController>(vel_lin_max, vel_ang_max, lin_ctrl_scale, 0.2, 1.0/15.0, 2);
+  }
+  else if(kinematic == "mecanum")
+  {
+    ROS_INFO("Init mecanum");
+    _pathAnalyser = std::make_unique<analyser::MecanumAnalyser>(target_radius, target_radius_final);
+    _controller = std::make_unique<controller::ParabolaTransfere>(vel_lin_max, vel_ang_max, lin_ctrl_scale, ang_ctrl_scale);
+  }
+  else
+  {
+    ROS_WARN("wrong robot kinematics configured.... use differential");
+    //  _pathAnalyser = std::make_unique<analyser::BasicAnalyser>(0.24, 0.1, 4, 1, 0.1, 1.0);
+    _pathAnalyser = std::make_unique<analyser::BasicAnalyser>(target_radius, target_radius_final, cos_pwr_n, cos_fac_n, ang_reached_range, lin_end_approach);
+    _pathAnalyser->setDoEndRotate(do_endrotate);
+
+    _controller = std::make_unique<controller::ParabolaTransfere>(vel_lin_max, vel_ang_max, lin_ctrl_scale, ang_ctrl_scale);
+    //  _controller = std::make_unique<controller::PIController>(vel_lin_max, vel_ang_max, lin_ctrl_scale, 1.0/15.0, 4, 5);
+    //  _controller = std::make_unique<controller::PDController>(vel_lin_max, vel_ang_max, lin_ctrl_scale, 0.2, 1.0/15.0, 2);
+  }
+
 
   _enable_analyse = false;
   _gotPath = false;
@@ -240,13 +265,17 @@ void RonaMove::doPathControl()
   //get diff scale
   analyser::diff_scale diff_scale = _pathAnalyser->analyse(pose);
 
+
   //controll diffscale
-  controller::velocity vel = _controller->control(diff_scale.linear_x, diff_scale.angular);
+  controller::velocity vel = _controller->control(diff_scale.linear_x, diff_scale.linear_y, diff_scale.angular);
+
 
   //set twist msg
   geometry_msgs::Twist msgTwist;
   msgTwist.angular.z = rona::Utility::proveMin(vel.angular, _min_vel_value);
-  msgTwist.linear.x = rona::Utility::proveMin(vel.linear, _min_vel_value);
+  msgTwist.linear.x = rona::Utility::proveMin(vel.linear_x, _min_vel_value);
+  msgTwist.linear.y = rona::Utility::proveMin(vel.linear_y, _min_vel_value);
+
 
   if(_reverseMode)
     msgTwist.linear.x *= -1;

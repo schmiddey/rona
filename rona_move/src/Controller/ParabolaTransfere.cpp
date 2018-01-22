@@ -27,8 +27,7 @@ ParabolaTransfere::ParabolaTransfere(
 ParabolaTransfere::~ParabolaTransfere()
 {
 }
-
-controller::velocity ParabolaTransfere::control(double linear, double angular)
+controller::velocity ParabolaTransfere::control(double linear_x, double linear_y, double angular)
 {
    controller::velocity vel;
    double ang = angular * _parabola_ang_fac;
@@ -36,7 +35,8 @@ controller::velocity ParabolaTransfere::control(double linear, double angular)
 
 
    vel.angular = (std::abs(ang) < _max_vel_ang ? ang : _max_vel_ang * sng);//this->parabola(_parabola_ang_fac, angular,_max_vel_ang);
-   vel.linear = this->parabola(_parabola_lin_fac, linear, _max_vel_lin);
+   vel.linear_x = this->parabola(_parabola_lin_fac, linear_x, _max_vel_lin);
+   vel.linear_y = this->parabola(_parabola_lin_fac, linear_y, _max_vel_lin);
 
    return vel;
 }
