@@ -464,7 +464,7 @@ int main(int argc, char *argv[])
   ros::NodeHandle nh("~");
 
   RonaMove node;
-  node.start(0.05);
+  node.start(0.05); //todo remove and set to 0.05
 
 }
 

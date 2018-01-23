@@ -9,14 +9,15 @@
 
 namespace analyser{
 
-MecanumAnalyser::MecanumAnalyser(const double target_radius, const double target_radius_final) :
+MecanumAnalyser::MecanumAnalyser(const double target_radius, const double target_radius_final, double end_approach) :
     PathAnalyser_base()
 {
   _target_radius       = target_radius;
   _target_radius_final = target_radius_final;
-
+  _end_approach_length = end_approach;
 
   _curr_target_raius   = _target_radius;
+  _is_end_approach = false;
 }
 
 MecanumAnalyser::~MecanumAnalyser()
@@ -59,17 +60,24 @@ analyser::diff_scale MecanumAnalyser::analyse(const analyser::pose& current_pose
     //todo rdy stuff...
 
     if(this->isLastGoal())
+    {
       break;
+    }
   }
 
+  Vector3d e(1,0,0);
+
+
   int direction_angular = this->getDirection(this->currentGoal().orientation, ori);
-  int direction_linear  = this->getDirection(p, ori);
+  int direction_linear  = this->getDirection(e, ori);
   Vector3d p_ang = this->currentGoal().orientation;
+
 
   //get scalfactor angular
   double diff_max = M_PI_2;
   double diff_ang = ::acos(static_cast<double>(ori.dot(p_ang) / (ori.norm() * p_ang.norm())));
-  double diff_lin = ::acos(static_cast<double>(ori.dot(p) / (ori.norm() * p.norm())));
+  double diff_lin = ::acos(static_cast<double>(ori.dot(e) / (ori.norm() * e.norm())));
+
   //reached last pose if arrived last goal
 //  if(_reachedLastPose && std::abs(tmp_diff) < _ang_reached_range)
 //  {
@@ -84,27 +92,28 @@ analyser::diff_scale MecanumAnalyser::analyse(const analyser::pose& current_pose
   //p is xy diff to next goal...
   Vector2d p_2d(p.x(), p.y());
 
-  std::cout << "diff_lin: " << diff_lin << std::endl;
-
-  std::cout << "p_2d: " << p_2d << std::endl;
-
   //roate p by ori...
   Rotation2D<double> rot_2d(diff_lin * direction_linear);
 
   p_2d = rot_2d * p_2d;
 
-  std::cout << "p_2d_rot: " << p_2d << std::endl;
 
-  //scale to +-1
-  double max_lin = ( std::max(std::abs(p_2d.x()), std::abs(p_2d.y()) ) );
+  //scale length to 1
+  //todo scale force set higher prio to move towards path... //todo check if needen i think not...
 
-  diff_scale.linear_x = p_2d.x() / max_lin;
-  diff_scale.linear_y = p_2d.y() / max_lin;
+  if((this->getPathLengthRest() + p.norm()) < _end_approach_length)
+  {
+    p_2d /= _end_approach_length;
+  }
+  else
+  {
+    p_2d /= p_2d.norm();
+  }
 
-  std::cout << "lin_x: " << diff_scale.linear_x << std::endl;
-  std::cout << "lin_y: " << diff_scale.linear_y << std::endl;
-  std::cout << "ang  : " << diff_scale.angular  << std::endl;
+  diff_scale.linear_x = p_2d.x();
+  diff_scale.linear_y = p_2d.y();
 
+  //todo set min vel...
 
   return diff_scale;
 }
