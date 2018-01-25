@@ -9,14 +9,12 @@
 
 namespace analyser{
 
-MecanumAnalyser::MecanumAnalyser(const double target_radius, const double target_radius_final, double end_approach) :
+MecanumAnalyser::MecanumAnalyser(const cfg::AnalyserBase_config& cfg) :
     PathAnalyser_base()
 {
-  _target_radius       = target_radius;
-  _target_radius_final = target_radius_final;
-  _end_approach_length = end_approach;
+  _cfg = cfg;
 
-  _curr_target_raius   = _target_radius;
+  _curr_target_raius   = _cfg.target_radius;
   _is_end_approach = false;
 }
 
@@ -28,8 +26,6 @@ MecanumAnalyser::~MecanumAnalyser()
 analyser::diff_scale MecanumAnalyser::analyse(const analyser::pose& current_pose)
 {
   analyser::diff_scale diff_scale;
-
-  std::cout << "---" << std::endl;
 
   if(_path.empty())
   {
@@ -67,11 +63,9 @@ analyser::diff_scale MecanumAnalyser::analyse(const analyser::pose& current_pose
 
   Vector3d e(1,0,0);
 
-
   int direction_angular = this->getDirection(this->currentGoal().orientation, ori);
   int direction_linear  = this->getDirection(e, ori);
   Vector3d p_ang = this->currentGoal().orientation;
-
 
   //get scalfactor angular
   double diff_max = M_PI_2;
@@ -85,12 +79,25 @@ analyser::diff_scale MecanumAnalyser::analyse(const analyser::pose& current_pose
 //    this->local_reachedFinalGoal(true);
 //  }
 //  else
-  diff_scale.angular = (diff_ang / diff_max) * direction_angular;  //scale between -1..1
 
   //linear scale...
 
   //p is xy diff to next goal...
   Vector2d p_2d(p.x(), p.y());
+
+  std::cout << "AngOffset: " << ((diff_ang * 180) / M_PI) * 1000 << " milli°" << std::endl;
+
+  std::cout << "Offset: (" << p.x() << ", " << p.y() << ")" << std::endl;
+
+  if(p_2d.norm() < _cfg.target_radius_final && diff_ang < _cfg.ang_reached_range)
+  {
+    this->setReachedFinalGoal(true);
+    if(!_cfg.hold_pos)
+    {
+      //if hold pos is off then send 0 cmd
+      return diff_scale;
+    }
+  }
 
   //roate p by ori...
   Rotation2D<double> rot_2d(diff_lin * direction_linear);
@@ -101,19 +108,21 @@ analyser::diff_scale MecanumAnalyser::analyse(const analyser::pose& current_pose
   //scale length to 1
   //todo scale force set higher prio to move towards path... //todo check if needen i think not...
 
-  if((this->getPathLengthRest() + p.norm()) < _end_approach_length)
+  if((this->getPathLengthRest() + p.norm()) < _cfg.lin_end_approach)
   {
-    p_2d /= _end_approach_length;
+    p_2d /= _cfg.lin_end_approach;
   }
   else
   {
     p_2d /= p_2d.norm();
   }
 
+  diff_scale.angular = (diff_ang / diff_max) * direction_angular;  //scale between -1..1
+
+
+  //note: min vel value is done by RonaMove class...
   diff_scale.linear_x = p_2d.x();
   diff_scale.linear_y = p_2d.y();
-
-  //todo set min vel...
 
   return diff_scale;
 }

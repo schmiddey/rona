@@ -32,6 +32,8 @@ using namespace Eigen;
 
 /*
  *
+ *
+ *
  * Funktion:
  * Start -> beginnt
  * Pause -> pause
@@ -44,7 +46,9 @@ using namespace Eigen;
  * Reached final goal nur true wenn kein empty pfad ist
  *
  */
-
+/**
+ * @todo recovery behaviour
+ */
 class RonaMove
 {
 public:
@@ -62,7 +66,7 @@ public:
    *
    * @return  void
    */
-  void start(const double duration = 0.1);
+  void start();
 
 private:  //functions
 
@@ -153,6 +157,8 @@ private:
   std::string _tf_map_frame;
   std::string _tf_robot_frame;
   std::string _tf_robot_reverse_frame;
+
+  double _loop_duration;
 
   double _min_vel_value;
   double _robot_radius;

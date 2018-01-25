@@ -16,16 +16,17 @@
 namespace analyser{
 
 
+
+
 /**
- * @todo add min vel
  * @todo add reached final goal...
- * @todo add compute curve fcn for scaling lin vel... scalable...
+ * @todo add compute curve fcn for scaling lin vel... scalable... (drive slowlier when hard turn is coming...)
  * @todo add scale value for how important is current rotation
  */
 class MecanumAnalyser : public PathAnalyser_base
 {
 public:
-  MecanumAnalyser(const double target_radius, const double target_radius_final, double end_approach = 0.5);
+  MecanumAnalyser(const cfg::AnalyserBase_config& cfg);
   virtual ~MecanumAnalyser();
 
   virtual analyser::diff_scale analyse(const analyser::pose& current_pose);
@@ -34,9 +35,8 @@ private: //functions
 
 
 private: //data fields
-  double _target_radius;
-  double _target_radius_final;
-  double _end_approach_length;
+
+  cfg::AnalyserBase_config _cfg;
 
   double _curr_target_raius;
 

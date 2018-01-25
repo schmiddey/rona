@@ -18,6 +18,27 @@ using namespace Eigen;
 namespace analyser
 {
 
+namespace cfg{
+
+struct AnalyserBase_config{
+  //general
+  double target_radius         = 0.24;
+  double target_radius_final   = 0.1;
+  double lin_end_approach      = 0.5;
+  double ang_reached_range     = 0.008; // aprox 0.5°
+  //mecanum
+  //todo
+  bool hold_pos                = true;  //for now only in mecanum but should be also in general (also differential)
+
+
+  //differential
+  //todo
+
+};
+
+}
+
+
 //enum enum_state {
 //   IDLE = 0,
 //   REACHED_GOAL,
@@ -52,6 +73,10 @@ typedef struct {
   bool reached_goal;
 } info;
 
+
+/**
+ * @todo add some kind of update cfg for path controller (allow dyn recfg...)
+ */
 class PathAnalyser_base
 {
 public:

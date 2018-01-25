@@ -28,6 +28,7 @@ RonaMove::RonaMove()
   double vel_lin_max;
   double vel_ang_max;
 
+  double loop_rate;
   double target_radius       ;
   double target_radius_final ;
   int    cos_pwr_n           ;
@@ -39,9 +40,12 @@ RonaMove::RonaMove()
   double robot_radius        ;
 
   bool do_endrotate;
+  bool hold_pos;
 
   double min_vel_value;        //mainly for simluator issue
 
+
+  //general param
   privNh.param        ("pub_cmd_vel_topic"    ,   pub_name_cmd_vel       , std::string("cmd_vel"           ));
   privNh.param        ("pub_state_topic"      ,   pub_name_state         , std::string("rona/move/state"   ));
   privNh.param        ("pub_process_topic"    ,   pub_name_process       , std::string("rona/move/process" ));
@@ -52,24 +56,35 @@ RonaMove::RonaMove()
   privNh.param        ("robot_frame"          ,   tf_robot_frame         , std::string("base_footprint"    ));
   privNh.param        ("robot_reverse_frame"  ,   tf_robot_reverse_frame , std::string("base_footprint_reverse"    ));
   privNh.param        ("kinematic"            ,   kinematic              , std::string("differential"));                  //mecanum
+  privNh.param<double>("loop_rate"            ,   loop_rate              , 50.0);
   privNh.param<double>("vel_lin_max"          ,   vel_lin_max            , 0.4  );
   privNh.param<double>("vel_ang_max"          ,   vel_ang_max            , 0.8  );
   privNh.param<double>("target_radius"        ,   target_radius          , 0.24 );
   privNh.param<double>("target_radius_final"  ,   target_radius_final    , 0.1  );
-  privNh.param<int>   ("cos_pwr_n"            ,   cos_pwr_n              , 4    );
-  privNh.param<double>("cos_fac_n"            ,   cos_fac_n              , 3.0  );
   privNh.param<double>("ang_reached_range"    ,   ang_reached_range      , 0.05  );
-  privNh.param<double>("lin_end_approach"     ,   lin_end_approach       , 1.0  );
   privNh.param<double>("lin_ctrl_scale"       ,   lin_ctrl_scale         , 2.0  );
   privNh.param<double>("ang_ctrl_scale"       ,   ang_ctrl_scale         , 4.0  );
   privNh.param<double>("min_vel_value"        ,   min_vel_value          , 0.001);
   privNh.param<double>("robot_radius"         ,   robot_radius           , 0.3  );
+  privNh.param<double>("lin_end_approach"     ,   lin_end_approach       , 0.5  );
+
+  //mecanum
+  privNh.param<bool>  ("hold_pos"             ,   hold_pos               , true);
+
+  //differential
+  privNh.param<int>   ("cos_pwr_n"            ,   cos_pwr_n              , 4    );
+  privNh.param<double>("cos_fac_n"            ,   cos_fac_n              , 3.0  );
   privNh.param<bool>  ("do_endrotate"         ,   do_endrotate           , false);
+
 
 
   _tf_map_frame = tf_map_frame;
   _tf_robot_frame = tf_robot_frame;
   _tf_robot_reverse_frame = tf_robot_reverse_frame;
+
+  if(loop_rate < 1.0)
+    loop_rate = 1.0;
+  _loop_duration = 1.0/loop_rate;
 
   _min_vel_value = min_vel_value;
   _robot_radius  = robot_radius;
@@ -107,7 +122,13 @@ RonaMove::RonaMove()
   else if(kinematic == "mecanum")
   {
     ROS_INFO("Init mecanum");
-    _pathAnalyser = std::make_unique<analyser::MecanumAnalyser>(target_radius, target_radius_final);
+    analyser::cfg::AnalyserBase_config cfg;
+    cfg.target_radius         = target_radius;
+    cfg.target_radius_final   = target_radius_final;
+    cfg.lin_end_approach      = lin_end_approach;
+    cfg.ang_reached_range     = ang_ctrl_scale;
+    cfg.hold_pos              = hold_pos;
+    _pathAnalyser = std::make_unique<analyser::MecanumAnalyser>(cfg);
     _controller = std::make_unique<controller::ParabolaTransfere>(vel_lin_max, vel_ang_max, lin_ctrl_scale, ang_ctrl_scale);
   }
   else
@@ -136,9 +157,8 @@ RonaMove::~RonaMove()
 {
 }
 
-void RonaMove::start(const double duration)
+void RonaMove::start()
 {
-
   //wait for first transform
   bool rdy = false;
   do
@@ -154,7 +174,7 @@ void RonaMove::start(const double duration)
     }
   }while(!rdy);
 
-  _loopTimer = _nh.createTimer(ros::Duration(duration), &RonaMove::timerLoop_callback, this);
+  _loopTimer = _nh.createTimer(ros::Duration(_loop_duration), &RonaMove::timerLoop_callback, this);
   ros::spin();
 }
 
@@ -464,7 +484,7 @@ int main(int argc, char *argv[])
   ros::NodeHandle nh("~");
 
   RonaMove node;
-  node.start(0.05); //todo remove and set to 0.05
+  node.start(); //todo remove and set to 0.05
 
 }
 
