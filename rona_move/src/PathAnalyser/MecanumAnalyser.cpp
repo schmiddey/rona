@@ -33,12 +33,6 @@ analyser::diff_scale MecanumAnalyser::analyse(const analyser::pose& current_pose
     return diff_scale;
   }
 
-  if(this->isReachedFinalGoal())
-  {
-    return diff_scale;
-  }
-
-
   Vector3d ori = current_pose.orientation;
   Vector3d pos = current_pose.position;
 
@@ -53,8 +47,6 @@ analyser::diff_scale MecanumAnalyser::analyse(const analyser::pose& current_pose
     p = this->currentGoal().position - pos;
     p.z() = 0;
 
-    //todo rdy stuff...
-
     if(this->isLastGoal())
     {
       break;
@@ -68,17 +60,10 @@ analyser::diff_scale MecanumAnalyser::analyse(const analyser::pose& current_pose
   Vector3d p_ang = this->currentGoal().orientation;
 
   //get scalfactor angular
-  double diff_max = M_PI_2;
+  double diff_max = M_PI;
   double diff_ang = ::acos(static_cast<double>(ori.dot(p_ang) / (ori.norm() * p_ang.norm())));
   double diff_lin = ::acos(static_cast<double>(ori.dot(e) / (ori.norm() * e.norm())));
 
-  //reached last pose if arrived last goal
-//  if(_reachedLastPose && std::abs(tmp_diff) < _ang_reached_range)
-//  {
-//    diff_scale.angular = 0;
-//    this->local_reachedFinalGoal(true);
-//  }
-//  else
 
   //linear scale...
 
@@ -89,14 +74,11 @@ analyser::diff_scale MecanumAnalyser::analyse(const analyser::pose& current_pose
 
   std::cout << "Offset: (" << p.x() << ", " << p.y() << ")" << std::endl;
 
+//  std::cout << "diff ang: " << diff_ang << ", cfg_ang_reached: " << _cfg.ang_reached_range << std::endl;
+
   if(p_2d.norm() < _cfg.target_radius_final && diff_ang < _cfg.ang_reached_range)
   {
     this->setReachedFinalGoal(true);
-    if(!_cfg.hold_pos)
-    {
-      //if hold pos is off then send 0 cmd
-      return diff_scale;
-    }
   }
 
   //roate p by ori...
@@ -105,9 +87,18 @@ analyser::diff_scale MecanumAnalyser::analyse(const analyser::pose& current_pose
   p_2d = rot_2d * p_2d;
 
 
-  //scale length to 1
-  //todo scale force set higher prio to move towards path... //todo check if needen i think not...
+  double tmp_angular_scaled = (diff_ang / diff_max) * direction_angular;  //scale between -1..1
 
+  diff_scale.angular = tmp_angular_scaled;
+
+  tmp_angular_scaled = std::abs(tmp_angular_scaled) * _cfg.wait_for_rotation;
+
+  if(tmp_angular_scaled > 1.0)
+    tmp_angular_scaled = 1.0;
+
+  tmp_angular_scaled = 1.0 - tmp_angular_scaled;
+
+  //scale length to 1 or to lin_end_approach...
   if((this->getPathLengthRest() + p.norm()) < _cfg.lin_end_approach)
   {
     p_2d /= _cfg.lin_end_approach;
@@ -117,8 +108,7 @@ analyser::diff_scale MecanumAnalyser::analyse(const analyser::pose& current_pose
     p_2d /= p_2d.norm();
   }
 
-  diff_scale.angular = (diff_ang / diff_max) * direction_angular;  //scale between -1..1
-
+  p_2d *= tmp_angular_scaled;
 
   //note: min vel value is done by RonaMove class...
   diff_scale.linear_x = p_2d.x();

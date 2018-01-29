@@ -38,6 +38,7 @@ RonaMove::RonaMove()
   double lin_ctrl_scale      ;
   double ang_ctrl_scale      ;
   double robot_radius        ;
+  double wait_for_rotation   ;
 
   bool do_endrotate;
   bool hold_pos;
@@ -56,12 +57,12 @@ RonaMove::RonaMove()
   privNh.param        ("robot_frame"          ,   tf_robot_frame         , std::string("base_footprint"    ));
   privNh.param        ("robot_reverse_frame"  ,   tf_robot_reverse_frame , std::string("base_footprint_reverse"    ));
   privNh.param        ("kinematic"            ,   kinematic              , std::string("differential"));                  //mecanum
-  privNh.param<double>("loop_rate"            ,   loop_rate              , 50.0);
+  privNh.param<double>("loop_rate"            ,   loop_rate              , 50.0 );
   privNh.param<double>("vel_lin_max"          ,   vel_lin_max            , 0.4  );
   privNh.param<double>("vel_ang_max"          ,   vel_ang_max            , 0.8  );
   privNh.param<double>("target_radius"        ,   target_radius          , 0.24 );
   privNh.param<double>("target_radius_final"  ,   target_radius_final    , 0.1  );
-  privNh.param<double>("ang_reached_range"    ,   ang_reached_range      , 0.05  );
+  privNh.param<double>("ang_reached_range"    ,   ang_reached_range      , 0.05 );
   privNh.param<double>("lin_ctrl_scale"       ,   lin_ctrl_scale         , 2.0  );
   privNh.param<double>("ang_ctrl_scale"       ,   ang_ctrl_scale         , 4.0  );
   privNh.param<double>("min_vel_value"        ,   min_vel_value          , 0.001);
@@ -69,7 +70,8 @@ RonaMove::RonaMove()
   privNh.param<double>("lin_end_approach"     ,   lin_end_approach       , 0.5  );
 
   //mecanum
-  privNh.param<bool>  ("hold_pos"             ,   hold_pos               , true);
+  privNh.param<bool>  ("hold_pos"             ,   hold_pos               , true );
+  privNh.param<double>("wait_for_rotation"    ,   wait_for_rotation      , 4.0  );
 
   //differential
   privNh.param<int>   ("cos_pwr_n"            ,   cos_pwr_n              , 4    );
@@ -89,8 +91,9 @@ RonaMove::RonaMove()
   _min_vel_value = min_vel_value;
   _robot_radius  = robot_radius;
 
-  ROS_INFO("robot_frame:         %s", _tf_robot_frame.c_str());
+  ROS_INFO("robot_frame        : %s", _tf_robot_frame.c_str());
   ROS_INFO("robot_reverse_frame: %s", _tf_robot_reverse_frame.c_str());
+  ROS_INFO("hold_pos           : %s", hold_pos ? "true": "false");
 
   //init publisher
   _pub_cmd_vel  = _nh.advertise<geometry_msgs::Twist>(pub_name_cmd_vel,10);
@@ -122,12 +125,17 @@ RonaMove::RonaMove()
   else if(kinematic == "mecanum")
   {
     ROS_INFO("Init mecanum");
+
+    if(wait_for_rotation < 1.0)
+      wait_for_rotation = 1.0;
+
     analyser::cfg::AnalyserBase_config cfg;
     cfg.target_radius         = target_radius;
     cfg.target_radius_final   = target_radius_final;
     cfg.lin_end_approach      = lin_end_approach;
-    cfg.ang_reached_range     = ang_ctrl_scale;
-    cfg.hold_pos              = hold_pos;
+    cfg.ang_reached_range     = ang_reached_range;
+    cfg.wait_for_rotation     = wait_for_rotation;
+//    cfg.hold_pos              = hold_pos;
     _pathAnalyser = std::make_unique<analyser::MecanumAnalyser>(cfg);
     _controller = std::make_unique<controller::ParabolaTransfere>(vel_lin_max, vel_ang_max, lin_ctrl_scale, ang_ctrl_scale);
   }
@@ -144,8 +152,9 @@ RonaMove::RonaMove()
   }
 
 
-  _enable_analyse = false;
   _gotPath = false;
+
+  _hold_pos = hold_pos;
 
   _reverseMode = false;
 
@@ -181,6 +190,7 @@ void RonaMove::start()
 
 void RonaMove::pubState()
 {
+//  std::cout << "state: " << (int)_state << std::endl;
   //for old msg
   std_msgs::Bool state_msg_old;
   state_msg_old.data = false;
@@ -202,8 +212,14 @@ void RonaMove::pubState()
 //      }
 //      else
     {  //arrived:
-      _enable_analyse = false;
-      _state = State::STOP;
+      if(_hold_pos)
+      {
+        _state = State::HOLD_POS;   //holding pos by control to end pos continuously
+      }
+      else
+      {
+        _state = State::STOP;
+      }
     }
   }
 
@@ -244,7 +260,7 @@ void RonaMove::timerLoop_callback(const ros::TimerEvent& e)
 void RonaMove::doPathControl()
 {
 
-  if(!_enable_analyse)
+  if(_state == State::PAUSE || _state == State::STOP)
   {
     this->pubState();
 
@@ -255,6 +271,8 @@ void RonaMove::doPathControl()
       _pub_cmd_vel.publish(msgTwist);
     return;
   }
+
+
 
   //get tf
   tf::StampedTransform tf;
@@ -307,13 +325,13 @@ void RonaMove::doPathControl()
 
   //todo bug -> sents max speed comman one times if arrived
 
-  //if(_pause)
-  if(_state != State::MOVE)
-  {
-    ROS_INFO("Rona_move->Pause");    //todo bug hier!!!! pause kommt ned!!!
-    msgTwist.angular.z = 0;
-    msgTwist.linear.x = 0;
-  }
+  //this code is done above...
+//  if(_state != State::MOVE)
+//  {
+//    ROS_INFO("Rona_move->Pause");    //todo bug hier!!!! pause kommt ned!!!
+//    msgTwist.angular.z = 0;
+//    msgTwist.linear.x = 0;
+//  }
 
   this->pubState();
 
@@ -401,6 +419,9 @@ void RonaMove::subPath_callback(const nav_msgs::Path& msg_)
 
   ROS_INFO("Path.size: %d", (int )path_trunc.size());
   _pathAnalyser->setPath(std::move(path_trunc));
+
+  _state = State::MOVE;
+
   //_enable_analyse = true;
   std_msgs::Bool reachedTarget;
   reachedTarget.data = false;
@@ -429,14 +450,10 @@ void RonaMove::subPause_callback(const std_msgs::Bool& msg)
 
 void RonaMove::subCtrl_callback(const rona_msgs::NodeCtrl& msg)
 {
-  if(msg.cmd == msg.START)
+  if(msg.cmd == msg.PAUSE)
   {
-    _enable_analyse = true;
-    _state = State::MOVE;
-  }
-  else if(msg.cmd == msg.PAUSE)
-  {
-    _state = State::PAUSE;
+    if(_state == State::MOVE) //only pause when moving...
+      _state = State::PAUSE;
   }
   else if(msg.cmd == msg.CONTINUE)
   {            //continue only if is in pause state
@@ -447,7 +464,6 @@ void RonaMove::subCtrl_callback(const rona_msgs::NodeCtrl& msg)
   }
   else if(msg.cmd == msg.STOP)
   {
-    _enable_analyse = false;
     _state = State::STOP;
     //clean analyser path...
     _pathAnalyser->clear();

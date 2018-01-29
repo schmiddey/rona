@@ -48,6 +48,7 @@ using namespace Eigen;
  */
 /**
  * @todo recovery behaviour
+ * @todo fix shitty coding (missing const ect...)
  */
 class RonaMove
 {
@@ -135,11 +136,13 @@ private:
 
   tf::TransformListener _tf_listnener;
 
+  //todo add pos hold
   enum State
   {
     STOP = 0,
     MOVE = 1,
-    PAUSE = 2
+    PAUSE = 2,
+    HOLD_POS = 3
   };
 
   State _state;
@@ -149,8 +152,9 @@ private:
   std::unique_ptr<controller::Controller_base> _controller;
 //  controller::Controller_base* _controller;
 
-  bool _enable_analyse;
   bool _gotPath;
+
+  bool _hold_pos;
 
   bool _reverseMode;
 

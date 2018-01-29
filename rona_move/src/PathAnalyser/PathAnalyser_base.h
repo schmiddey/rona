@@ -28,8 +28,8 @@ struct AnalyserBase_config{
   double ang_reached_range     = 0.008; // aprox 0.5°
   //mecanum
   //todo
-  bool hold_pos                = true;  //for now only in mecanum but should be also in general (also differential)
-
+//  bool hold_pos                = true;  //for now only in mecanum but should be also in general (also differential)
+  double wait_for_rotation     = 4.0;
 
   //differential
   //todo

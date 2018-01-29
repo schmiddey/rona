@@ -11,8 +11,8 @@
       <param name="map_frame"                type="string" value="map"               />
       <param name="robot_frame"              type="string" value="robot0"    />
       <param name="kinematic"                type="string" value="differential"    />
-      <param name="vel_lin_max"              type="double" value="0.4"               />
-      <param name="vel_ang_max"              type="double" value="1.8"               />
+      <param name="vel_lin_max"              type="double" value="1.4"               />
+      <param name="vel_ang_max"              type="double" value="2.8"               />
       <param name="target_radius"            type="double" value="0.24"              />
       <param name="target_radius_final"      type="double" value="0.1"               />
       <param name="cos_pwr_n"                type="int"    value="4 "                />
@@ -23,7 +23,7 @@
       <param name="ang_ctrl_scale"           type="double" value="4.0"               />
       <param name="min_vel_value"            type="double" value="0.001"             />
       <param name="do_endrotate"             type="bool" value="true"    />
-      
+
    </node>
 
   <!-- Path planner -->
