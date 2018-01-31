@@ -16,6 +16,10 @@
 namespace controller
 {
 
+
+/**
+ * @bug if parabola_lin_fac <= 1 then max speed is never reached... maybe scale first with max vel ... and lower ramp/parabola salcing
+ */
 class ParabolaTransfere: public controller::Controller_base
 {
 public:
