@@ -227,12 +227,18 @@ void SironaSM::sub_pathCallback(const nav_msgs::Path& msg)
 
    //repub path to move
 
+
+   //save last ori
+   auto ori = path_t.poses.back().pose.orientation;
    //hack for exploratoin...
    if(path_t.poses.size() > 40)
    {//cut path ... last 75 elements...
      path_t.poses.erase((path_t.poses.end() - 30), path_t.poses.end());
    }
    //hack end...
+
+   path_t.poses.back().pose.orientation = ori;
+
    _pubPathMove.publish(path_t);
 
    if(type == PathType::NORMAL)
