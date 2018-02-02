@@ -44,7 +44,7 @@ struct Point2D{
 struct Polygon{
    std::vector<Point2D> points;
    Polygon() { }
-   Polygon(std::vector<Point2D>& p) { points = p; } //cpy
+   Polygon(const std::vector<Point2D>& p) { points = p; } //cpy
 };
 
 struct Rect2D{
