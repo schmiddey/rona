@@ -6,7 +6,11 @@
 #include <geometry_msgs/PointStamped.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <nav_msgs/Path.h>
+#include <nav_msgs/OccupancyGrid.h>
 #include <visualization_msgs/MarkerArray.h>
+#include <tf/tf.h>
+
+#include <rona_msgs/PlanPath.h>
 
 #include "WayPointHandler.h"
 
@@ -49,6 +53,12 @@ private:    //functions
     // for removing last wp ... maybe a hack :)
     void sub_estimate_pose_callback(const geometry_msgs::PoseWithCovarianceStamped& pose);
 
+    void sub_map_callback(const nav_msgs::OccupancyGridPtr map);
+
+    std::pair<bool, nav_msgs::Path> compute_direct_path(const geometry_msgs::Point& start, const geometry_msgs::Point& end);
+
+    //compute path via sirona via service....
+    nav_msgs::Path compute_path(const geometry_msgs::Point& start, const geometry_msgs::Point& end);
 
 private:    //dataelements
     ros::NodeHandle _nh;
@@ -57,10 +67,21 @@ private:    //dataelements
     ros::Publisher _pub_marker;
     ros::Subscriber _sub_clicked_point;
     ros::Subscriber _sub_estimate_pose;
+    ros::Subscriber _sub_map;
+
+    ros::ServiceClient _srv_plan_path;
 
     ros::Timer _loopTimer;
 
     WayPointHandler _wp_handler;
+
+    nav_msgs::OccupancyGridPtr _map;
+
+    geometry_msgs::Quaternion _orientation;
+
+    double _step_length = 0.05;
+
+    std::string _frame_id = "map";
 };
 
 #endif /* RONAWPCLICKNODE_H_ */
