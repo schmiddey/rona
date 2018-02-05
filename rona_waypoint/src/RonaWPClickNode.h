@@ -14,6 +14,17 @@
 
 #include "WayPointHandler.h"
 
+#include <rona_lib/marker/MarkerUtility.h>
+
+namespace cfg{
+
+struct WPClick_cfg{
+  double step_length = 0.05;
+  std::string frame_id = "map";
+};
+
+}
+
 
 class RonaWPClickNode
 {
@@ -60,6 +71,8 @@ private:    //functions
     //compute path via sirona via service....
     nav_msgs::Path compute_path(const geometry_msgs::Point& start, const geometry_msgs::Point& end);
 
+    visualization_msgs::MarkerArray toMarkerArray(const WayPointHandler& wp_handler);
+
 private:    //dataelements
     ros::NodeHandle _nh;
 
@@ -79,9 +92,7 @@ private:    //dataelements
 
     geometry_msgs::Quaternion _orientation;
 
-    double _step_length = 0.05;
-
-    std::string _frame_id = "map";
+    cfg::WPClick_cfg _cfg;
 };
 
 #endif /* RONAWPCLICKNODE_H_ */

@@ -42,15 +42,17 @@ public:
 
   waypoints_t& getWaypoints() { return _waypoints; }
 
-//  waypoints_t& getWaypoints() const { return _waypoints; }
+  const waypoints_t& getWaypoints() const { return _waypoints; }
 
   waypoint_t& at(const unsigned int idx) { return _waypoints.at(idx); }
 
   waypoint_t& operator[](const unsigned int idx) noexcept { return _waypoints[idx]; }
 
   waypoint_t& back() { return _waypoints.back(); }
+  const waypoint_t& back() const { return _waypoints.back(); }
 
   waypoint_t& front() { return _waypoints.front(); }
+  const waypoint_t& front() const { return _waypoints.front(); }
 
   nav_msgs::Path getPath(unsigned int from, unsigned int to, const std::string& frame_id = "map", const ros::Time& stamp = ros::Time::now())
   {

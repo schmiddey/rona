@@ -52,6 +52,7 @@ void RonaWPClickNode::run()
 void RonaWPClickNode::publish_waypoints()
 {
   _pub_wp_path.publish(_wp_handler.getPathComplete());
+  _pub_marker.publish(this->toMarkerArray(_wp_handler));
 }
 
 
@@ -103,7 +104,7 @@ std::pair<bool, nav_msgs::Path> RonaWPClickNode::compute_direct_path(const geome
 {
   auto ros_time = ros::Time::now();
   nav_msgs::Path path;
-  path.header.frame_id = _frame_id;
+  path.header.frame_id = _cfg.frame_id;
   path.header.stamp    = ros_time;
   bool occupied = false;
 
@@ -113,12 +114,12 @@ std::pair<bool, nav_msgs::Path> RonaWPClickNode::compute_direct_path(const geome
 
   double dist = st.distance(en);
 
-  tf::Vector3 v_step = ((en - st).normalize()) * _step_length;
+  tf::Vector3 v_step = ((en - st).normalize()) * _cfg.step_length;
 
-  unsigned int steps = std::round(dist / _step_length);
+  unsigned int steps = std::round(dist / _cfg.step_length);
 
   geometry_msgs::PoseStamped p;
-  p.header.frame_id = _frame_id;
+  p.header.frame_id = _cfg.frame_id;
   p.header.stamp    = ros_time;
   //todo do custom ori may be in line with path ...
   p.pose.orientation = _orientation;
@@ -162,7 +163,36 @@ nav_msgs::Path RonaWPClickNode::compute_path(const geometry_msgs::Point& start, 
   return srv.response.path;
 }
 
+visualization_msgs::MarkerArray RonaWPClickNode::toMarkerArray(const WayPointHandler& wp_handler)
+{
+  //black bigger sphere for startpoint, small spherer for interpolated path and LineList for wps
+  rona::MarkerArrayHandler m_handler;
 
+  //push start
+  geometry_msgs::PoseStamped pose_start;
+  pose_start.header.frame_id = "map";
+  pose_start.header.stamp    = ros::Time::now();
+  pose_start.pose.position = wp_handler.front().first;
+
+  m_handler.push_back(rona::Marker::createSphere(pose_start, 0.1, rona::Color(rona::Color::BLUE) ) );
+
+  std::vector<geometry_msgs::Point> waypoints;
+
+  for(auto& e : wp_handler.getWaypoints())
+  {
+    //add waypoints
+    waypoints.push_back(e.first);
+    //add path
+    for(auto& p : e.second.poses)
+    {
+       m_handler.push_back(rona::Marker::createSphere(p, 0.05, rona::Color(rona::Color::ORANGE) ) );
+    }
+
+  }
+  //push waypoints
+  m_handler.push_back(rona::Marker::createLineList(waypoints, 0.2, 0.02, rona::Color(rona::Color::RED) ) );
+  return m_handler.get();
+}
 
 // ------------- main ---------------
 int main(int argc, char *argv[])
@@ -174,4 +204,5 @@ int main(int argc, char *argv[])
     node.start();
 
 }
+
 
