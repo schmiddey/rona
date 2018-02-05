@@ -25,7 +25,9 @@ struct WPClick_cfg{
 
 }
 
-
+/**
+ * @todo set ori via setNavGoal...
+ */
 class RonaWPClickNode
 {
 

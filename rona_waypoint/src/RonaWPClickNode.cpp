@@ -52,7 +52,12 @@ void RonaWPClickNode::run()
 void RonaWPClickNode::publish_waypoints()
 {
   _pub_wp_path.publish(_wp_handler.getPathComplete());
-  _pub_marker.publish(this->toMarkerArray(_wp_handler));
+
+  auto marker = this->toMarkerArray(_wp_handler);
+
+  std::cout << "marker size: " << marker.markers.size() << std::endl;
+
+  _pub_marker.publish(marker);
 }
 
 
@@ -116,7 +121,7 @@ std::pair<bool, nav_msgs::Path> RonaWPClickNode::compute_direct_path(const geome
 
   tf::Vector3 v_step = ((en - st).normalize()) * _cfg.step_length;
 
-  unsigned int steps = std::round(dist / _cfg.step_length);
+  unsigned int steps = dist / _cfg.step_length;
 
   geometry_msgs::PoseStamped p;
   p.header.frame_id = _cfg.frame_id;
@@ -124,7 +129,11 @@ std::pair<bool, nav_msgs::Path> RonaWPClickNode::compute_direct_path(const geome
   //todo do custom ori may be in line with path ...
   p.pose.orientation = _orientation;
 
-  for(unsigned int i=0; i<steps; ++i)
+  //push first wp
+  p.pose.position = start;
+  path.poses.push_back(p);
+
+  for(unsigned int i=1; i<steps; ++i)
   {
     //todo prove if occupied
     st += v_step;
@@ -135,6 +144,10 @@ std::pair<bool, nav_msgs::Path> RonaWPClickNode::compute_direct_path(const geome
 
     path.poses.push_back(p);
   }
+
+  //push endpoint
+  p.pose.position = end;
+  path.poses.push_back(p);
 
   return std::make_pair(occupied, path);
 }
@@ -166,7 +179,7 @@ nav_msgs::Path RonaWPClickNode::compute_path(const geometry_msgs::Point& start, 
 visualization_msgs::MarkerArray RonaWPClickNode::toMarkerArray(const WayPointHandler& wp_handler)
 {
   //black bigger sphere for startpoint, small spherer for interpolated path and LineList for wps
-  rona::MarkerArrayHandler m_handler;
+  rona::MarkerArrayHandler m_handler("wp");
 
   //push start
   geometry_msgs::PoseStamped pose_start;
@@ -181,7 +194,8 @@ visualization_msgs::MarkerArray RonaWPClickNode::toMarkerArray(const WayPointHan
   for(auto& e : wp_handler.getWaypoints())
   {
     //add waypoints
-    waypoints.push_back(e.first);
+    //waypoints.push_back(e.first);
+    m_handler.push_back(rona::Marker::createCyliner(e.first, 0.2, 0.02, rona::Color(rona::Color::RED) ) );
     //add path
     for(auto& p : e.second.poses)
     {
@@ -190,7 +204,7 @@ visualization_msgs::MarkerArray RonaWPClickNode::toMarkerArray(const WayPointHan
 
   }
   //push waypoints
-  m_handler.push_back(rona::Marker::createLineList(waypoints, 0.2, 0.02, rona::Color(rona::Color::RED) ) );
+  //m_handler.push_back(rona::Marker::createLineList(waypoints, 0.2, 0.02, rona::Color(rona::Color::RED) ) );
   return m_handler.get();
 }
 
