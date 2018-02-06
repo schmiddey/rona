@@ -6,9 +6,9 @@
 #include <geometry_msgs/PointStamped.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <nav_msgs/Path.h>
-#include <nav_msgs/OccupancyGrid.h>
 #include <visualization_msgs/MarkerArray.h>
 #include <tf/tf.h>
+#include <std_srvs/Empty.h>
 
 #include <rona_msgs/PlanPath.h>
 
@@ -21,6 +21,8 @@ namespace cfg{
 struct WPClick_cfg{
   double step_length = 0.05;
   std::string frame_id = "map";
+  std::string wp_file_save = "/tmp/waypoints.txt";
+  std::string wp_file_load = "";
 };
 
 }
@@ -66,7 +68,9 @@ private:    //functions
     // for removing last wp ... maybe a hack :)
     void sub_estimate_pose_callback(const geometry_msgs::PoseWithCovarianceStamped& pose);
 
-    void sub_map_callback(const nav_msgs::OccupancyGridPtr map);
+    void sub_nav_goal_callback(const geometry_msgs::PoseStamped& pose);
+
+    bool srv_save_wp_callback(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res);
 
     std::pair<bool, nav_msgs::Path> compute_direct_path(const geometry_msgs::Point& start, const geometry_msgs::Point& end);
 
@@ -80,17 +84,18 @@ private:    //dataelements
 
     ros::Publisher _pub_wp_path;
     ros::Publisher _pub_marker;
+
     ros::Subscriber _sub_clicked_point;
     ros::Subscriber _sub_estimate_pose;
-    ros::Subscriber _sub_map;
+    ros::Subscriber _sub_nav_goal;
+
+    ros::ServiceServer _srv_save;
 
     ros::ServiceClient _srv_plan_path;
 
     ros::Timer _loopTimer;
 
     WayPointHandler _wp_handler;
-
-    nav_msgs::OccupancyGridPtr _map;
 
     geometry_msgs::Quaternion _orientation;
 

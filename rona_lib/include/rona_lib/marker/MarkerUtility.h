@@ -33,7 +33,6 @@ private:
 
   const static std::vector<RGB> _rgb_lut;
 
-
 public:
   enum enum_color{
     WHITE   = 0,
@@ -165,6 +164,37 @@ public:
     marker.scale.x = diameter;
     marker.scale.y = diameter;
     marker.scale.z = height;
+
+    marker.color = color.toRosColor();
+
+    marker.lifetime = ros::Duration();
+    return marker;
+  }
+
+  inline static visualization_msgs::Marker createArrow(const geometry_msgs::Pose pose,
+                                                       const double length,
+                                                       const double diameter,
+                                                       const Color& color,
+                                                       const std::string& frame_id = "map",
+                                                       const int id = 0)
+  {
+    visualization_msgs::Marker marker;
+
+    marker.header.frame_id = frame_id;
+    marker.header.stamp = ros::Time::now();
+
+    marker.ns = "rona";
+    marker.id = id;
+
+    marker.type = visualization_msgs::Marker::ARROW;
+
+    marker.action = visualization_msgs::Marker::ADD;
+
+    marker.pose = pose;
+
+    marker.scale.x = length;
+    marker.scale.y = diameter;
+    marker.scale.z = diameter;
 
     marker.color = color.toRosColor();
 
@@ -392,7 +422,7 @@ private:
     visualization_msgs::MarkerArray rm_appendix;
     auto last_size = _smodel.getLastSize(_identifier);
 
-    ROS_INFO_STREAM("last_size: " << last_size);
+//    ROS_INFO_STREAM("last_size: " << last_size);
 
     int id = 0;
 

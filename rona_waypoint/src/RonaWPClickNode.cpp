@@ -4,17 +4,21 @@
 RonaWPClickNode::RonaWPClickNode()
 {
     //rosParam
-//    ros::NodeHandle privNh("~");
-//    std::string string_val;
+    ros::NodeHandle privNh("~");
+    std::string wp_file_load;
+    std::string wp_file_save;
 //    double      double_val;
 //    int         int_val;
 //    bool        bool_val;
 //
-//    privNh.param(         "string_val" ,    string_val,   std::string("string"));
+    privNh.param(         "wp_file_load" ,    wp_file_load,   _cfg.wp_file_load);
+    privNh.param(         "wp_file_save" ,    wp_file_save,   _cfg.wp_file_save);
 //    privNh.param<double>( "double_val" ,    double_val,   100.0);
 //    privNh.param<int>(    "int_val"    ,    int_val   ,   1.0);
 //    privNh.param<bool>(   "bool_val"   ,    bool_val  ,   true);
 
+    _cfg.wp_file_load = wp_file_load;
+    _cfg.wp_file_save = wp_file_save;
 
     //init publisher
 //    _pub = _nh.advertise<std_msgs::Bool>("pub_name",1);
@@ -25,12 +29,29 @@ RonaWPClickNode::RonaWPClickNode()
     //_sub = _nh.subscribe("subname", 1, &Template::subCallback, this);
     _sub_clicked_point = _nh.subscribe("/clicked_point", 100, &RonaWPClickNode::sub_clicked_point_callback, this);
     _sub_estimate_pose = _nh.subscribe("/initialpose", 1, &RonaWPClickNode::sub_estimate_pose_callback, this);
-    _sub_map           = _nh.subscribe("map", 1, &RonaWPClickNode::sub_map_callback, this);
+    _sub_nav_goal      = _nh.subscribe("/move_base_simple/goal", 1, &RonaWPClickNode::sub_nav_goal_callback, this);
+
+    _srv_save          = _nh.advertiseService("rona/waypoint/save_waypoints", &RonaWPClickNode::srv_save_wp_callback, this);
 
     _srv_plan_path     = _nh.serviceClient<rona_msgs::PlanPath>("todo");
 
+    _orientation.w = 1.0;
 
-    ROS_INFO_STREAM("map valid: " << (_map ? "true" : "false"));
+    if(!_cfg.wp_file_load.empty())
+    {
+      //todo may sleep...
+      ROS_INFO_STREAM("Load waypoints: " << _cfg.wp_file_load);
+      if(!_wp_handler.load(_cfg.wp_file_load))
+      {
+        ROS_ERROR_STREAM("Unable to open waypoint file: " << _cfg.wp_file_load << ", use empty waypoints...");
+      }
+      else
+      {
+        ROS_INFO_STREAM("Loaded waypoints (cnt: " << _wp_handler.size() << ")");
+        this->publish_waypoints();
+      }
+    }
+
 }
 
 RonaWPClickNode::~RonaWPClickNode()
@@ -51,11 +72,14 @@ void RonaWPClickNode::run()
 
 void RonaWPClickNode::publish_waypoints()
 {
+  if(_wp_handler.empty())
+    return;
+
   _pub_wp_path.publish(_wp_handler.getPathComplete());
 
   auto marker = this->toMarkerArray(_wp_handler);
 
-  std::cout << "marker size: " << marker.markers.size() << std::endl;
+//  std::cout << "marker size: " << marker.markers.size() << std::endl;
 
   _pub_marker.publish(marker);
 }
@@ -63,19 +87,35 @@ void RonaWPClickNode::publish_waypoints()
 
 void RonaWPClickNode::loop_callback(const ros::TimerEvent& e)
 {
-   //do loop stuff here!!!
-
+  this->publish_waypoints();
 }
 
 
 void RonaWPClickNode::sub_clicked_point_callback(const geometry_msgs::PointStamped& p)
 {
+  geometry_msgs::Pose pose;
+
+  pose.position = p.point;
+  pose.orientation = _orientation;
+
+  //set z to zero
+  pose.position.z = 0.0;
+
+  std::string str_pose = _wp_handler.pose2string(pose);
+
+  ROS_INFO_STREAM("test output: " << pose);
+
+  ROS_INFO_STREAM("got Point: " << str_pose);
+
+  ROS_INFO_STREAM("from string to Pose: " << _wp_handler.string2pose(str_pose));
+
   if(_wp_handler.empty())
   {
-    _wp_handler.push(p.point);
+    _wp_handler.push(pose);
+    this->publish_waypoints();
     return;
   }
-  auto d_path = this->compute_direct_path(_wp_handler.back().first, p.point);
+  auto d_path = this->compute_direct_path(_wp_handler.back().first.position, pose.position);
   if(d_path.first)
   {//is occupied
     //todo compute path with sirona plan...
@@ -83,7 +123,7 @@ void RonaWPClickNode::sub_clicked_point_callback(const geometry_msgs::PointStamp
 
   ROS_INFO("Cnt path: %d", (int)d_path.second.poses.size());
 
-  _wp_handler.push(p.point, d_path.second);
+  _wp_handler.push(pose, d_path.second);
 
   this->publish_waypoints();
 }
@@ -99,11 +139,21 @@ void RonaWPClickNode::sub_estimate_pose_callback(const geometry_msgs::PoseWithCo
   this->publish_waypoints();
 }
 
-void RonaWPClickNode::sub_map_callback(const nav_msgs::OccupancyGridPtr map)
+void RonaWPClickNode::sub_nav_goal_callback(const geometry_msgs::PoseStamped& pose)
 {
-  _map = map;
+  _orientation = pose.pose.orientation;
+  if(!_wp_handler.empty())
+  {
+    _wp_handler.back().first.orientation = _orientation;
+    this->publish_waypoints();
+  }
 }
 
+bool RonaWPClickNode::srv_save_wp_callback(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res)
+{
+  _wp_handler.serialize(_cfg.wp_file_save);
+  return true;
+}
 
 std::pair<bool, nav_msgs::Path> RonaWPClickNode::compute_direct_path(const geometry_msgs::Point& start, const geometry_msgs::Point& end)
 {
@@ -176,6 +226,8 @@ nav_msgs::Path RonaWPClickNode::compute_path(const geometry_msgs::Point& start, 
   return srv.response.path;
 }
 
+
+
 visualization_msgs::MarkerArray RonaWPClickNode::toMarkerArray(const WayPointHandler& wp_handler)
 {
   //black bigger sphere for startpoint, small spherer for interpolated path and LineList for wps
@@ -185,7 +237,7 @@ visualization_msgs::MarkerArray RonaWPClickNode::toMarkerArray(const WayPointHan
   geometry_msgs::PoseStamped pose_start;
   pose_start.header.frame_id = "map";
   pose_start.header.stamp    = ros::Time::now();
-  pose_start.pose.position = wp_handler.front().first;
+  pose_start.pose.position = wp_handler.front().first.position;
 
   m_handler.push_back(rona::Marker::createSphere(pose_start, 0.1, rona::Color(rona::Color::BLUE) ) );
 
@@ -195,11 +247,13 @@ visualization_msgs::MarkerArray RonaWPClickNode::toMarkerArray(const WayPointHan
   {
     //add waypoints
     //waypoints.push_back(e.first);
-    m_handler.push_back(rona::Marker::createCyliner(e.first, 0.2, 0.02, rona::Color(rona::Color::RED) ) );
+    m_handler.push_back(rona::Marker::createCyliner(e.first.position, 0.2, 0.02, rona::Color(rona::Color::RED) ) );
+    m_handler.push_back(rona::Marker::createArrow(e.first, 0.4, 0.02, rona::Color(rona::Color::BLACK) ) );
     //add path
     for(auto& p : e.second.poses)
     {
        m_handler.push_back(rona::Marker::createSphere(p, 0.05, rona::Color(rona::Color::ORANGE) ) );
+       m_handler.push_back(rona::Marker::createArrow(p.pose, 0.2, 0.01, rona::Color(rona::Color::BLACK) ) );
     }
 
   }
@@ -215,7 +269,7 @@ int main(int argc, char *argv[])
     ros::NodeHandle nh("~");
 
     RonaWPClickNode node;
-    node.start();
+    node.start(0.2);
 
 }
 
