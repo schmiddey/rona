@@ -4,6 +4,9 @@
 #include <ros/ros.h>
 #include <geometry_msgs/PointStamped.h>
 #include <nav_msgs/Path.h>
+#include <visualization_msgs/MarkerArray.h>
+
+#include <rona_lib/marker/MarkerUtility.h>
 
 #include <vector>
 #include <map>
@@ -210,6 +213,39 @@ public:
     return false;
   }
 
+  inline visualization_msgs::MarkerArray toMarkerArray()
+  {
+    //black bigger sphere for startpoint, small spherer for interpolated path and LineList for wps
+    rona::MarkerArrayHandler m_handler("wp"); //todo adding name to wp handler?!
+
+    //push start
+    geometry_msgs::PoseStamped pose_start;
+    pose_start.header.frame_id = "map";
+    pose_start.header.stamp    = ros::Time::now();
+    pose_start.pose.position = this->front().first.position;
+
+    m_handler.push_back(rona::Marker::createSphere(pose_start, 0.1, rona::Color(rona::Color::BLUE) ) );
+
+    std::vector<geometry_msgs::Point> waypoints;
+
+    for(auto& e : this->getWaypoints())
+    {
+      //add waypoints
+      //waypoints.push_back(e.first);
+      m_handler.push_back(rona::Marker::createCyliner(e.first.position, 0.2, 0.02, rona::Color(rona::Color::RED) ) );
+      m_handler.push_back(rona::Marker::createArrow(e.first, 0.4, 0.02, rona::Color(rona::Color::BLACK) ) );
+      //add path
+      for(auto& p : e.second.poses)
+      {
+         m_handler.push_back(rona::Marker::createSphere(p, 0.05, rona::Color(rona::Color::ORANGE) ) );
+         m_handler.push_back(rona::Marker::createArrow(p.pose, 0.2, 0.01, rona::Color(rona::Color::BLACK) ) );
+      }
+
+    }
+    //push waypoints
+    //m_handler.push_back(rona::Marker::createLineList(waypoints, 0.2, 0.02, rona::Color(rona::Color::RED) ) );
+    return m_handler.get();
+  }
 
   inline std::string pose2string(const geometry_msgs::Pose& p) const
   {

@@ -83,6 +83,8 @@ private:    //functions
 
     void loop_callback(const ros::TimerEvent& e);
 
+    void loop_marker_callback(const ros::TimerEvent& e);
+
     //void subCallback(const ROS_PACK::MESSAGE& msg);
 
     void sub_move_state_callback(const std_msgs::Bool& msg);
@@ -108,12 +110,13 @@ private:    //dataelements
 
     ros::Publisher _pub_path;
     ros::Publisher _pub_state;
+    ros::Publisher _pub_marker;
     ros::Subscriber _sub_move_state;
     ros::Subscriber _sub_node_ctrl;
     ros::Subscriber _sub_load_wp;
 
     ros::Timer _loopTimer;
-
+    ros::Timer _loopMarkerTimer;
     cfg::RonaWPExecute_cfg _cfg;
 
     WayPointHandler _wp_handler;

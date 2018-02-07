@@ -77,11 +77,11 @@ void RonaWPClickNode::publish_waypoints()
 
   _pub_wp_path.publish(_wp_handler.getPathComplete());
 
-  auto marker = this->toMarkerArray(_wp_handler);
+  //auto marker = this->toMarkerArray(_wp_handler);
 
 //  std::cout << "marker size: " << marker.markers.size() << std::endl;
 
-  _pub_marker.publish(marker);
+  _pub_marker.publish(_wp_handler.toMarkerArray());
 }
 
 
@@ -151,6 +151,9 @@ void RonaWPClickNode::sub_nav_goal_callback(const geometry_msgs::PoseStamped& po
 
 bool RonaWPClickNode::srv_save_wp_callback(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res)
 {
+  //compute path from last wp to first wp...
+  auto path = this->compute_direct_path(_wp_handler.back().first.position, _wp_handler.front().first.position);
+  _wp_handler.front().second = path.second;
   _wp_handler.serialize(_cfg.wp_file_save);
   return true;
 }
@@ -228,44 +231,44 @@ nav_msgs::Path RonaWPClickNode::compute_path(const geometry_msgs::Point& start, 
 
 
 
-visualization_msgs::MarkerArray RonaWPClickNode::toMarkerArray(const WayPointHandler& wp_handler)
-{
-  //black bigger sphere for startpoint, small spherer for interpolated path and LineList for wps
-  rona::MarkerArrayHandler m_handler("wp");
-
-  //push start
-  geometry_msgs::PoseStamped pose_start;
-  pose_start.header.frame_id = "map";
-  pose_start.header.stamp    = ros::Time::now();
-  pose_start.pose.position = wp_handler.front().first.position;
-
-  m_handler.push_back(rona::Marker::createSphere(pose_start, 0.1, rona::Color(rona::Color::BLUE) ) );
-
-  std::vector<geometry_msgs::Point> waypoints;
-
-  for(auto& e : wp_handler.getWaypoints())
-  {
-    //add waypoints
-    //waypoints.push_back(e.first);
-    m_handler.push_back(rona::Marker::createCyliner(e.first.position, 0.2, 0.02, rona::Color(rona::Color::RED) ) );
-    m_handler.push_back(rona::Marker::createArrow(e.first, 0.4, 0.02, rona::Color(rona::Color::BLACK) ) );
-    //add path
-    for(auto& p : e.second.poses)
-    {
-       m_handler.push_back(rona::Marker::createSphere(p, 0.05, rona::Color(rona::Color::ORANGE) ) );
-       m_handler.push_back(rona::Marker::createArrow(p.pose, 0.2, 0.01, rona::Color(rona::Color::BLACK) ) );
-    }
-
-  }
-  //push waypoints
-  //m_handler.push_back(rona::Marker::createLineList(waypoints, 0.2, 0.02, rona::Color(rona::Color::RED) ) );
-  return m_handler.get();
-}
+//visualization_msgs::MarkerArray RonaWPClickNode::toMarkerArray(const WayPointHandler& wp_handler)
+//{
+//  //black bigger sphere for startpoint, small spherer for interpolated path and LineList for wps
+//  rona::MarkerArrayHandler m_handler("wp");
+//
+//  //push start
+//  geometry_msgs::PoseStamped pose_start;
+//  pose_start.header.frame_id = "map";
+//  pose_start.header.stamp    = ros::Time::now();
+//  pose_start.pose.position = wp_handler.front().first.position;
+//
+//  m_handler.push_back(rona::Marker::createSphere(pose_start, 0.1, rona::Color(rona::Color::BLUE) ) );
+//
+//  std::vector<geometry_msgs::Point> waypoints;
+//
+//  for(auto& e : wp_handler.getWaypoints())
+//  {
+//    //add waypoints
+//    //waypoints.push_back(e.first);
+//    m_handler.push_back(rona::Marker::createCyliner(e.first.position, 0.2, 0.02, rona::Color(rona::Color::RED) ) );
+//    m_handler.push_back(rona::Marker::createArrow(e.first, 0.4, 0.02, rona::Color(rona::Color::BLACK) ) );
+//    //add path
+//    for(auto& p : e.second.poses)
+//    {
+//       m_handler.push_back(rona::Marker::createSphere(p, 0.05, rona::Color(rona::Color::ORANGE) ) );
+//       m_handler.push_back(rona::Marker::createArrow(p.pose, 0.2, 0.01, rona::Color(rona::Color::BLACK) ) );
+//    }
+//
+//  }
+//  //push waypoints
+//  //m_handler.push_back(rona::Marker::createLineList(waypoints, 0.2, 0.02, rona::Color(rona::Color::RED) ) );
+//  return m_handler.get();
+//}
 
 // ------------- main ---------------
 int main(int argc, char *argv[])
 {
-    ros::init(argc, argv, "rona_wp_click_node");
+    ros::init(argc, argv, "rona_waypoint_click_node");
     ros::NodeHandle nh("~");
 
     RonaWPClickNode node;
