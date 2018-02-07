@@ -8,15 +8,16 @@ RonaWPExecute::RonaWPExecute()
     std::string wp_file_load;
     double      wait_duration;
 //    int         int_val;
-//    bool        bool_val;
+    bool        do_loop;
 
-    privNh.param(         "wp_file_load" ,    wp_file_load,   _cfg.wp_file_load);
+    privNh.param(         "wp_file_load" ,    wp_file_load,     _cfg.wp_file_load);
     privNh.param<double>( "wait_duration" ,    wait_duration,   _cfg.wait_duration_s);
 //    privNh.param<int>(    "int_val"    ,    int_val   ,   1.0);
-//    privNh.param<bool>(   "bool_val"   ,    bool_val  ,   true);
+    privNh.param<bool>(   "do_loop"   ,    do_loop  ,           _cfg.do_loop);
 
     _cfg.wp_file_load = wp_file_load;
     _cfg.wait_duration_s = wait_duration;
+    _cfg.do_loop = do_loop;
 
     //init publisher
     _pub_path   = _nh.advertise<nav_msgs::Path>("rona/move/path", 1);
@@ -40,6 +41,9 @@ RonaWPExecute::RonaWPExecute()
     {
       _wp_handler.load(wp_file_load);
     }
+
+    ROS_INFO_STREAM("Do Loop?: " << (_cfg.do_loop ? "true" : "false") );
+
 }
 
 RonaWPExecute::~RonaWPExecute()
@@ -78,7 +82,10 @@ void RonaWPExecute::loop_callback(const ros::TimerEvent& e)
     ROS_INFO("Pub next path");
     //next wp...
     _state = state::MOVE;
-    this->pub_wp_path(this->next_wp());
+    this->next_wp();
+    if(_state == state::STOP)
+      return;
+    this->pub_wp_path(_curr_wp_id);
   }
 
 
@@ -142,7 +149,7 @@ int main(int argc, char *argv[])
     ros::NodeHandle nh("~");
 
     RonaWPExecute node;
-    node.start();
+    node.start(0.25);
 
 }
 

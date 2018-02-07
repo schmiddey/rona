@@ -19,6 +19,7 @@ namespace cfg {
 struct RonaWPExecute_cfg{
   std::string wp_file_load = "";
   double wait_duration_s   = 5.0;
+  bool do_loop             = true;
 };
 
 }  // namespace cfg
@@ -96,7 +97,14 @@ private:    //functions
     int next_wp()
     {
       if(++_curr_wp_id >= _wp_handler.size())
+      {
         _curr_wp_id = 0;
+        if(!_cfg.do_loop)
+        {
+          ROS_INFO("STOP WP execute... Restart with nodectrl start");
+          _state = state::STOP;
+        }
+      }
       return _curr_wp_id;
     }
 
