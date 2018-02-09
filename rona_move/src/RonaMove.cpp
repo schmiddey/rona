@@ -39,6 +39,7 @@ RonaMove::RonaMove()
   double ang_ctrl_scale      ;
   double robot_radius        ;
   double wait_for_rotation   ;
+  double tf_stamp_offset     ;
 
   bool do_endrotate;
   bool hold_pos;
@@ -68,6 +69,8 @@ RonaMove::RonaMove()
   privNh.param<double>("min_vel_value"        ,   min_vel_value          , 0.001);
   privNh.param<double>("robot_radius"         ,   robot_radius           , 0.3  );
   privNh.param<double>("lin_end_approach"     ,   lin_end_approach       , 0.5  );
+  privNh.param<double>("tf_stamp_offset"      ,   tf_stamp_offset        , 0.0  );
+
 
   //mecanum
   privNh.param<bool>  ("hold_pos"             ,   hold_pos               , true );
@@ -83,6 +86,13 @@ RonaMove::RonaMove()
   _tf_map_frame = tf_map_frame;
   _tf_robot_frame = tf_robot_frame;
   _tf_robot_reverse_frame = tf_robot_reverse_frame;
+
+  _tf_stamp_offset = tf_stamp_offset;
+  _use_tf_stamp_offset = false;
+  if(_tf_stamp_offset != 0.0)
+  {
+    _use_tf_stamp_offset = true;
+  }
 
   if(loop_rate < 1.0)
     loop_rate = 1.0;
@@ -286,6 +296,17 @@ void RonaMove::doPathControl()
 
   try  {
     ros::Time time = ros::Time(0);
+    if(_use_tf_stamp_offset)
+    {
+      if(_tf_stamp_offset < 0)
+        time = ros::Time::now() - ros::Duration(std::abs(_tf_stamp_offset));
+      else
+        time = ros::Time::now() + ros::Duration(std::abs(_tf_stamp_offset));
+
+      ROS_INFO_STREAM("Time::now: " << ros::Time::now());
+      ROS_INFO_STREAM("time     : " << time);
+
+    }
     _tf_listnener.lookupTransform(_tf_map_frame, robot_frame, time, tf);
 
   }catch(tf::TransformException& e)

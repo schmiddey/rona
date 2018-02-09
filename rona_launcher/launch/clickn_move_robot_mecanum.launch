@@ -24,7 +24,7 @@
       <param name="min_vel_value"            type="double" value="0.001"             />
       <param name= "hold_pos"                type="bool"   value="true"              />
       <param name= "wait_for_rotation"       type="double" value="1.0"              />
-
+      <param name="tf_stamp_offset"          type="double" value="0.0"             />
    </node>
 
   <!-- Path planner -->

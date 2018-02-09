@@ -166,6 +166,9 @@ private:
 
   double _min_vel_value;
   double _robot_radius;
+
+  double _tf_stamp_offset;
+  bool _use_tf_stamp_offset;
 };
 
 #endif /* TEMPLATE_H_ */
