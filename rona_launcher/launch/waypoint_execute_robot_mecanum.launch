@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- waypoint execute -->
+  <node name="rona_waypoint_execute_node" pkg="rona_waypoint" type="rona_waypoint_execute_node" output="screen">
+    <param name="wp_file_load"              type="string" value="/home/user/wayponts.txt"   />
+    <param name="loop_rate"                 type="double" value="10.0"               />
+    <param name="wait_duration"             type="double" value="2.5"               />
+    <param name="do_loop"                   type="bool"   value="true"               />
+  </node>
+
+  <!-- Path controller -->
+  <!--node name="rona_move_node" pkg="rona_move" type="rona_move_node" output="screen"-->
+  <node name="rona_move_node" pkg="rona_move" type="rona_move_node" output="log">
+    <param name="pub_cmd_vel_topic"        type="string" value="cmd_vel/rona"           />
+    <param name="pub_state_topic"          type="string" value="rona/move/state"   />
+    <param name="pub_process_topic"        type="string" value="rona/move/process" />
+    <param name="sub_path_topic"           type="string" value="rona/move/path"    />
+    <param name="sub_ctrl_topic"           type="string" value="rona/move/ctrl"    />
+    <param name="map_frame"                type="string" value="map"               />
+    <param name="robot_frame"              type="string" value="base_link"    />
+    <param name="kinematic"                type="string" value="mecanum"    />
+    <param name="loop_rate"                type="double" value="50.0"               />
+    <param name="vel_lin_max"              type="double" value="0.2"               />
+    <param name="vel_ang_max"              type="double" value="0.8"               />
+    <param name="target_radius"            type="double" value="0.14"              />
+    <param name="target_radius_final"      type="double" value="0.05"               />
+    <param name="cos_pwr_n"                type="int"    value="4 "                />
+    <param name="cos_fac_n"                type="double" value="2.0"               />
+    <param name="ang_reached_range"        type="double" value="0.008"               />
+    <param name="lin_end_approach"         type="double" value="0.5"               />
+    <param name="lin_ctrl_scale"           type="double" value="1.0"               />
+    <param name="ang_ctrl_scale"           type="double" value="4.0"               />
+    <param name="min_vel_value"            type="double" value="0.001"             />
+    <param name= "hold_pos"                type="bool"   value="true"              />
+    <param name= "wait_for_rotation"       type="double" value="1.0"              />
+  </node>
+
+  <!-- Path planner -->
+  <!--node name="sirona_plan_node" pkg="sirona" type="sirona_plan_node" >
+    <param name="sub_map_topic"              type="string" value="map"                       />
+    <param name="sub_target_topic"           type="string" value="rona/plan/target"          />
+    <param name="sub_replan_topic"           type="string" value="rona/plan/replan"          />
+    <param name="sub_add_obstacle_topic"     type="string" value="rona/plan/add_obstacle"    />
+    <param name="sub_rm_obstacle_topic"      type="string" value="rona/plan/rm_obstacle"     />
+    <param name="pub_path_topic"             type="string" value="rona/plan/path"            />
+    <param name="pub_grid_topic"             type="string" value="rona/map/inflated"         />
+    <param name="pub_grid_ob_topic"          type="string" value="rona/map/obstacles"        />
+    <param name="map_frame"                  type="string" value="map"                       />
+    <param name="robot_frame"                type="string" value="robot0"                    />
+    <param name="robot_radius"               type="double" value="0.35"                      />
+    <param name="dt_radius"                  type="double" value="0.30"                       />
+    <param name="free_robot_pos_factor"      type="double" value="0.5"                       />
+  </node-->
+
+
+</launch>
