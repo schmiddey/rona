@@ -5,7 +5,7 @@
     <param name="wp_file_load"              type="string" value="/tmp/waypoints.txt"   />
     <param name="loop_rate"                 type="double" value="10.0"               />
     <param name="wait_duration"             type="double" value="0.5"               />
-    <param name="do_loop"                   type="bool"   value="false"               />
+    <param name="do_loop"                   type="bool"   value="true"               />
 
   </node>
   <!-- Path controller -->

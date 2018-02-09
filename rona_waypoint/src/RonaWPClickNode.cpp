@@ -9,16 +9,17 @@ RonaWPClickNode::RonaWPClickNode()
     std::string wp_file_save;
 //    double      double_val;
 //    int         int_val;
-//    bool        bool_val;
+    bool        save_at_exit;
 //
     privNh.param(         "wp_file_load" ,    wp_file_load,   _cfg.wp_file_load);
     privNh.param(         "wp_file_save" ,    wp_file_save,   _cfg.wp_file_save);
 //    privNh.param<double>( "double_val" ,    double_val,   100.0);
 //    privNh.param<int>(    "int_val"    ,    int_val   ,   1.0);
-//    privNh.param<bool>(   "bool_val"   ,    bool_val  ,   true);
+    privNh.param<bool>(   "save_at_exit"   ,    save_at_exit  ,   _cfg.save_at_exit);
 
     _cfg.wp_file_load = wp_file_load;
     _cfg.wp_file_save = wp_file_save;
+    _cfg.save_at_exit = save_at_exit;
 
     //init publisher
 //    _pub = _nh.advertise<std_msgs::Bool>("pub_name",1);
@@ -68,6 +69,20 @@ void RonaWPClickNode::start(double duration)
 void RonaWPClickNode::run()
 {
    ros::spin();
+
+   if(_cfg.save_at_exit)
+   {
+     //compute path from last wp to first wp...
+     auto path = this->compute_direct_path(_wp_handler.back().first.position, _wp_handler.front().first.position);
+     _wp_handler.front().second = path.second;
+     std::cout << "Save Waypoints at exit... wait 2 sec then exit..." << std::endl;
+     _wp_handler.serialize(_cfg.wp_file_save);
+     this->publish_waypoints();
+     ::usleep(2000000);
+   }
+
+   std::cout << "Exit..." << std::endl;
+
 }
 
 void RonaWPClickNode::publish_waypoints()

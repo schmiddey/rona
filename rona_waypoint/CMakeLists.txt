@@ -19,6 +19,9 @@ find_package(catkin REQUIRED COMPONENTS
   visualization_msgs
 )
 
+find_package(cmake_modules REQUIRED)
+find_package(Eigen REQUIRED)
+
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -122,10 +125,9 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
   ${catkin_INCLUDE_DIRS}
+  ${EIGEN_INCLUDE_DIRS}
 )
-
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/rona_waypoint.cpp

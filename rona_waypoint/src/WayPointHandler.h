@@ -95,6 +95,7 @@ public:
 
   inline bool serialize(const std::string& file) const
   {
+    ROS_INFO_STREAM("Save Waypoints under: " << file);
     std::fstream f(file, std::ios::out);
     if(f.is_open())
     {
@@ -110,11 +111,11 @@ public:
         //path loop
         const auto& path = _waypoints[i].second;
         f << "path" << std::endl;
-        std::cout << "path: " << std::endl;
+//        std::cout << "path: " << std::endl;
         for(unsigned int p=0; p<path.poses.size(); ++p)
         {
           auto tmp_p = this->pose2string(path.poses[p].pose);
-          std::cout << "tmp_p: " << tmp_p << std::endl;
+//          std::cout << "tmp_p: " << tmp_p << std::endl;
           f << tmp_p << std::endl;
         }
       }
@@ -127,6 +128,7 @@ public:
 
   inline bool load(const std::string& file)
   {
+    ROS_INFO_STREAM("Load Waypoints from: " << file);
     std::fstream f(file, std::ios::in);
     if(f.is_open())
     {
@@ -136,7 +138,7 @@ public:
         std::getline(f,line);
         if(line.empty())
         {
-          std::cout << "ret first wp" << std::endl;
+//          std::cout << "ret first wp" << std::endl;
           this->clear();
           return false;
         }
@@ -146,14 +148,14 @@ public:
       line.clear();
       std::getline(f,line);
       {
-        std::cout << "read waypoint: " << std::stoi(line) << std::endl;
+//        std::cout << "read waypoint: " << std::stoi(line) << std::endl;
       }
       while(true)
       {
         //read wp
         line.clear();
         std::getline(f, line);
-        std::cout << "line: " << line << std::endl;
+//        std::cout << "line: " << line << std::endl;
         auto wp = this->string2pose(line);
         //Read path
         line.clear();
@@ -178,7 +180,7 @@ public:
             {
               line.clear();
               std::getline(f,line);
-              std::cout << "read waypoint: " << std::stoi(line) << std::endl;
+//              std::cout << "read waypoint: " << std::stoi(line) << std::endl;
             }
             break;
           }

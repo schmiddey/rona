@@ -44,6 +44,8 @@ RonaWPExecute::RonaWPExecute()
 
     ROS_INFO_STREAM("Do Loop?: " << (_cfg.do_loop ? "true" : "false") );
 
+    _covered_dist = 0.0;
+
 }
 
 RonaWPExecute::~RonaWPExecute()
@@ -61,6 +63,22 @@ void RonaWPExecute::start(double duration)
 void RonaWPExecute::run()
 {
    ros::spin();
+
+   std::string file = std::to_string(ros::Time::now().toSec()) + "_rona_waypoint_coverd_dist.txt";
+   std::cout << "Save Covered Distance to file: " << file << std::endl;
+
+   std::fstream f(file, std::ios::out);
+   if(f.is_open())
+   {
+     f << "Rona Waypoint covered distance: " << std::endl;
+     f << _covered_dist << " m" << std::endl;
+     f.close();
+   }
+   else
+   {
+     std::cout << "Unable to save covered distance file .... but covered dist was: " << _covered_dist << std::endl;
+   }
+
 }
 
 
@@ -102,6 +120,11 @@ void RonaWPExecute::sub_move_state_callback(const std_msgs::Bool& msg)
 {
   if(!_last_move_state && msg.data)
   {
+
+    //compute covered dist
+    _covered_dist += rona::map::Operations::computePathLength(rona::Utility::toRonaPath(_wp_handler.at(_curr_wp_id).second));
+    ROS_INFO_STREAM("covered distance: " << _covered_dist);
+
     //arrived
     if(_stop_at_next_wp)
     {

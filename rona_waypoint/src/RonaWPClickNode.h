@@ -23,6 +23,7 @@ struct WPClick_cfg{
   std::string frame_id = "map";
   std::string wp_file_save = "/tmp/waypoints.txt";
   std::string wp_file_load = "";
+  bool save_at_exit = true;
 };
 
 }

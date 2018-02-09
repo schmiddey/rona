@@ -9,10 +9,13 @@
 
 #include <rona_msgs/NodeCtrl.h>
 
+#include <rona_lib/Map/Operations.h>
 
 #include "WayPointHandler.h"
 
 #include <string>
+
+#include <fstream>
 
 namespace cfg {
 
@@ -136,6 +139,8 @@ private:    //dataelements
     bool _last_move_state;
 
     bool _stop_at_next_wp;
+
+    double _covered_dist;
 
     ros::Time _wait_time;
 };
