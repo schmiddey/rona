@@ -19,7 +19,7 @@ find_package(catkin REQUIRED COMPONENTS
   visualization_msgs
 )
 
-find_package(cmake_modules REQUIRED)nc
+find_package(cmake_modules REQUIRED)
 find_package(Eigen REQUIRED)
 
 ## System dependencies are found with CMake's conventions
