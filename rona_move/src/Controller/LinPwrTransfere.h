@@ -12,8 +12,7 @@
 #include "Controller_base.h"
 #include <cmath>
 #include <string>
-#include <boost/lexical_cast.hpp>
-
+#include <Eigen/Dense>
 namespace controller
 {
 
@@ -50,8 +49,31 @@ public:
      controller::velocity vel;
 
      vel.angular  = this->transfere_fcn(_pwr_ratio_ang_fac, angular , _max_vel_ang);
-     vel.linear_x = this->transfere_fcn(_pwr_ratio_lin_fac, linear_x, _max_vel_lin);
-     vel.linear_y = this->transfere_fcn(_pwr_ratio_lin_fac, linear_y, _max_vel_lin);
+
+     Eigen::Vector3d lin(linear_x, linear_y, 0.0);
+     double norm = lin.norm();
+
+     std::cout << "lin_x" << linear_x << std::endl;
+     std::cout << "lin_y" << linear_y << std::endl;
+
+     std::cout << "norm1: " << norm << std::endl;
+
+     norm = this->transfere_fcn(_pwr_ratio_lin_fac, norm, _max_vel_lin);
+//     vel.linear_y = this->transfere_fcn(_pwr_ratio_lin_fac, linear_y, _max_vel_lin);
+
+     if(lin.norm() > 0.0)
+     {
+       norm /= lin.norm();
+       lin *= norm;
+     }
+
+
+     std::cout << "norm: " << norm << std::endl;
+
+     std::cout << "lin.norm: " << lin.norm() << std::endl;
+
+     vel.linear_x = lin.x();
+     vel.linear_y = lin.y();
 
      return vel;
    }
