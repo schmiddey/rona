@@ -2,6 +2,7 @@
 #include "PathAnalyser/BasicAnalyser.h"
 #include "PathAnalyser/MecanumAnalyser.h"
 #include "Controller/ParabolaTransfere.h"
+#include "Controller/LinPwrTransfere.h"
 #include "Controller/PDController.h"
 #include "RonaMove.h"
 
@@ -104,6 +105,7 @@ RonaMove::RonaMove()
   ROS_INFO("robot_frame        : %s", _tf_robot_frame.c_str());
   ROS_INFO("robot_reverse_frame: %s", _tf_robot_reverse_frame.c_str());
   ROS_INFO("hold_pos           : %s", hold_pos ? "true": "false");
+  ROS_INFO("use_tf_stamp_offset: %s", _use_tf_stamp_offset ? "true" : "false");
 
   //init publisher
   _pub_cmd_vel  = _nh.advertise<geometry_msgs::Twist>(pub_name_cmd_vel,10);
@@ -147,7 +149,8 @@ RonaMove::RonaMove()
     cfg.wait_for_rotation     = wait_for_rotation;
 //    cfg.hold_pos              = hold_pos;
     _pathAnalyser = std::make_unique<analyser::MecanumAnalyser>(cfg);
-    _controller = std::make_unique<controller::ParabolaTransfere>(vel_lin_max, vel_ang_max, lin_ctrl_scale, ang_ctrl_scale);
+    //_controller = std::make_unique<controller::ParabolaTransfere>(vel_lin_max, vel_ang_max, lin_ctrl_scale, ang_ctrl_scale);
+    _controller   = std::make_unique<controller::LinPwrTransfere>(vel_lin_max, vel_ang_max, lin_ctrl_scale, ang_ctrl_scale);
   }
   else
   {
@@ -324,9 +327,19 @@ void RonaMove::doPathControl()
   //get diff scale
   analyser::diff_scale diff_scale = _pathAnalyser->analyse(pose);
 
+  std::cout << "analyse: " << std::endl;
+  std::cout << "ang   : " << diff_scale.angular << std::endl;
+  std::cout << "lin_x : " << diff_scale.linear_x << std::endl;
+  std::cout << "lin_y : " << diff_scale.linear_y << std::endl;
 
   //controll diffscale
   controller::velocity vel = _controller->control(diff_scale.linear_x, diff_scale.linear_y, diff_scale.angular);
+
+  std::cout << "control: " << std::endl;
+  std::cout << "ang   : " << vel.angular << std::endl;
+  std::cout << "lin_x : " << vel.linear_x << std::endl;
+  std::cout << "lin_y : " << vel.linear_y << std::endl;
+
 
 
   //set twist msg

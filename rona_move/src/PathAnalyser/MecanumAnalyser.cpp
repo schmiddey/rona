@@ -70,9 +70,16 @@ analyser::diff_scale MecanumAnalyser::analyse(const analyser::pose& current_pose
   //p is xy diff to next goal...
   Vector2d p_2d(p.x(), p.y());
 
-  std::cout << "AngOffset: " << ((diff_ang * 180) / M_PI) * 1000 << " milli°" << std::endl;
+  //debug output
+  {
+    static int cnt = 0;
+    if((++cnt % 50) == 0)
+    {
+      std::cout << "AngOffset: " << ((diff_ang * 180) / M_PI) * 1000 << " milli°" << std::endl;
+      std::cout << "Offset: (" << p.x() << ", " << p.y() << ")" << std::endl;
+    }
+  }
 
-  std::cout << "Offset: (" << p.x() << ", " << p.y() << ")" << std::endl;
 
 //  std::cout << "diff ang: " << diff_ang << ", cfg_ang_reached: " << _cfg.ang_reached_range << std::endl;
 

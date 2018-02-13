@@ -33,6 +33,7 @@ controller::velocity ParabolaTransfere::control(double linear_x, double linear_y
    double ang = angular * _parabola_ang_fac;
    double sng = ang > 0 ? 1 : -1;
 
+   //todo find sgn not by if statement... do (x > 0) - (x < 0)
 
    vel.angular = (std::abs(ang) < _max_vel_ang ? ang : _max_vel_ang * sng);//this->parabola(_parabola_ang_fac, angular,_max_vel_ang);
    vel.linear_x = this->parabola(_parabola_lin_fac, linear_x, _max_vel_lin);

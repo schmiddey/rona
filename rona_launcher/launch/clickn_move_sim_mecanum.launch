@@ -12,20 +12,20 @@
       <param name="robot_frame"              type="string" value="robot0"    />
       <param name="kinematic"                type="string" value="mecanum"    />
       <param name="loop_rate"                type="double" value="50.0"               />
-      <param name="vel_lin_max"              type="double" value="0.40"               />
-      <param name="vel_ang_max"              type="double" value="0.8"               />
+      <param name="vel_lin_max"              type="double" value="0.6"               />
+      <param name="vel_ang_max"              type="double" value="1.8"               />
       <param name="target_radius"            type="double" value="0.24"              />
       <param name="target_radius_final"      type="double" value="0.05"               />
       <param name="cos_pwr_n"                type="int"    value="4 "                />
       <param name="cos_fac_n"                type="double" value="2.0"               />
       <param name="ang_reached_range"        type="double" value="0.008"               />
       <param name="lin_end_approach"         type="double" value="0.5"               />
-      <param name="lin_ctrl_scale"           type="double" value="1.0"               />
-      <param name="ang_ctrl_scale"           type="double" value="4.0"               />
+      <param name="lin_ctrl_scale"           type="double" value="0.90"               />
+      <param name="ang_ctrl_scale"           type="double" value="0.0"               />
       <param name="min_vel_value"            type="double" value="0.001"             />
       <param name= "hold_pos"                type="bool"   value="true"              />
       <param name= "wait_for_rotation"       type="double" value="1.0"              />
-      <param name="tf_stamp_offset"          type="double" value="-0.35"             />
+      <param name="tf_stamp_offset"          type="double" value="0"             />
    </node>
 
   <!-- Path planner -->
