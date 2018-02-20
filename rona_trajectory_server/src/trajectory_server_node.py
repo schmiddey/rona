@@ -57,7 +57,7 @@ if __name__ == '__main__':
 
     path =   Path()
 
-    prefix = "/rona"
+    prefix = "/rona/"
 
     path_pub        = rospy.Publisher(prefix + path_topic, Path, queue_size=10)
     path_length_pub = rospy.Publisher(prefix + path_topic + "/length", Float32, queue_size=10)

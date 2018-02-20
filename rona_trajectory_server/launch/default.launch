@@ -1,0 +1,8 @@
+<launch>
+    <node pkg="rona_trajectory_server"  type="trajectory_server_node.py" name="trajectory_server" output="screen">
+        <!--param name="frame_id_pose"   value="laser">
+        <param name="frame_id_map"    value="map">
+        <param name="loop_rate"       value="10">
+        <param name="path_topic"      value="trajectory"-->
+    </node>
+</launch>
