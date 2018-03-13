@@ -1,3 +1,12 @@
+/**
+ * @file   RonaMove.cpp
+ * @author Michael Schmidpeter
+ * @date   old ?!
+ * @brief  path controller node
+ * 
+ * PROJECT: rona
+ * @see https://github.com/schmiddey/rona
+ */
 
 #include "PathAnalyser/BasicAnalyser.h"
 #include "PathAnalyser/MecanumAnalyser.h"
@@ -41,13 +50,14 @@ RonaMove::RonaMove()
   double robot_radius        ;
   double wait_for_rotation   ;
   double tf_stamp_offset     ;
+  double path_truncate       ;
 
   bool do_endrotate;
   bool hold_pos;
 
   double min_vel_value;        //mainly for simluator issue
 
-
+  //todo remove topic param -> should be done viea remap...
   //general param
   privNh.param        ("pub_cmd_vel_topic"    ,   pub_name_cmd_vel       , std::string("cmd_vel"           ));
   privNh.param        ("pub_state_topic"      ,   pub_name_state         , std::string("rona/move/state"   ));
@@ -70,8 +80,8 @@ RonaMove::RonaMove()
   privNh.param<double>("min_vel_value"        ,   min_vel_value          , 0.001);
   privNh.param<double>("robot_radius"         ,   robot_radius           , 0.3  );
   privNh.param<double>("lin_end_approach"     ,   lin_end_approach       , 0.5  );
-  privNh.param<double>("tf_stamp_offset"      ,   tf_stamp_offset        , 0.0  );
-
+  privNh.param<double>("tf_stamp_offset"      ,   tf_stamp_offset        , 0.0  );  //todo remove this param.. or do not use it..
+  privNh.param<double>("path_truncate"        ,   path_truncate          , 0.5  );
 
   //mecanum
   privNh.param<bool>  ("hold_pos"             ,   hold_pos               , true );
@@ -97,10 +107,12 @@ RonaMove::RonaMove()
 
   if(loop_rate < 1.0)
     loop_rate = 1.0;
-  _loop_duration = 1.0/loop_rate;
+  _loop_duration = 1.0 / loop_rate;
 
   _min_vel_value = min_vel_value;
   _robot_radius  = robot_radius;
+
+  _path_truncate = path_truncate;
 
   ROS_INFO("robot_frame        : %s", _tf_robot_frame.c_str());
   ROS_INFO("robot_reverse_frame: %s", _tf_robot_reverse_frame.c_str());
@@ -108,9 +120,9 @@ RonaMove::RonaMove()
   ROS_INFO("use_tf_stamp_offset: %s", _use_tf_stamp_offset ? "true" : "false");
 
   //init publisher
-  _pub_cmd_vel  = _nh.advertise<geometry_msgs::Twist>(pub_name_cmd_vel,10);
-  _pub_state    = _nh.advertise<std_msgs::Bool>(pub_name_state,1);
-  _pub_progress = _nh.advertise<std_msgs::UInt32>(pub_name_process,1);
+  _pub_cmd_vel  = _nh.advertise<geometry_msgs::Twist>(pub_name_cmd_vel,10); //todo heck if twist stamped is needed...
+  _pub_state    = _nh.advertise<std_msgs::Bool>(pub_name_state,1);      //todo may find better way to pub state...
+  _pub_progress = _nh.advertise<std_msgs::UInt32>(pub_name_process,1);  //todo may find better way to pub state...
   _pub_marker   = _nh.advertise<visualization_msgs::Marker>(pub_name_marker, 1);
 
   //inti subscriber
@@ -118,9 +130,10 @@ RonaMove::RonaMove()
   _sub_ctrl = _nh.subscribe(sub_ctrl_topic, 1000, &RonaMove::subCtrl_callback, this);
   _sub_pause = _nh.subscribe("rona/move/pause", 1, &RonaMove::subPause_callback, this);
 
+  _srv_node_ctrl   = _nh.advertiseService("/rona/move/node_ctrl", &RonaMove::srvNodeCtrl_callback, this);
   _srv_reverse_on  = _nh.advertiseService("/rona/move/set_reverse_on", &RonaMove::srvReverseOn_callback, this);
   _srv_reverse_off = _nh.advertiseService("/rona/move/set_reverse_off", &RonaMove::srvReverseOff_callback, this);
-  _srv_reverse_sw = _nh.advertiseService("/rona/move/set_reverse_sw", &RonaMove::srvReverseSw_callback, this);
+  _srv_reverse_sw  = _nh.advertiseService("/rona/move/set_reverse_sw", &RonaMove::srvReverseSw_callback, this);
 
 
   if(kinematic == "differential")
@@ -154,7 +167,7 @@ RonaMove::RonaMove()
   }
   else
   {
-    ROS_WARN("wrong robot kinematics configured.... use differential");
+    ROS_WARN("Wrong robot kinematics configured.... use differential");
     //  _pathAnalyser = std::make_unique<analyser::BasicAnalyser>(0.24, 0.1, 4, 1, 0.1, 1.0);
     _pathAnalyser = std::make_unique<analyser::BasicAnalyser>(target_radius, target_radius_final, cos_pwr_n, cos_fac_n, ang_reached_range, lin_end_approach);
     _pathAnalyser->setDoEndRotate(do_endrotate);
@@ -176,8 +189,7 @@ RonaMove::RonaMove()
 }
 
 RonaMove::~RonaMove()
-{
-}
+{ }
 
 void RonaMove::start()
 {
@@ -375,6 +387,7 @@ void RonaMove::doPathControl()
 
 void RonaMove::subPath_callback(const nav_msgs::Path& msg_)
 {
+  rona::Timer_auto_us timer("subPath_cb: ");
   _gotPath = true;
   nav_msgs::Path msg = msg_;
   //path with length 1 is invalid, if invalid then clear
@@ -382,7 +395,9 @@ void RonaMove::subPath_callback(const nav_msgs::Path& msg_)
   {
     ROS_INFO("rona_move-> got emptyPath");
     _state = State::STOP;
-    msg.poses.clear();
+    msg.poses.clear(); 
+
+    return; //todo check if return is ok.. here..
   }
   std::vector<analyser::pose> path_comp(msg.poses.size());
   std::vector<analyser::pose> path_trunc(msg.poses.size());
@@ -437,18 +452,20 @@ void RonaMove::subPath_callback(const nav_msgs::Path& msg_)
     //prove if path point is in robot pose + detection radius: (x-x0)^2 + (y-y0)^2 < r^2
     if((cx - px) * (cx - px) + (cy - py) * (cy - py) < (detectionRaidus * detectionRaidus))
     {  //point is in radius
-       //ROS_INFO("Found stuff in Radius!!!!!!!!!!!!!");
+      ROS_INFO("Found stuff in Radius!!!!!!!!!!!!!");
       trunc_idx = i;
       break;
     }
+  }
 
-    if(trunc_idx)
-      path_trunc.erase(path_trunc.begin(), path_trunc.begin() + trunc_idx);
+  if(trunc_idx)
+  {
+    path_trunc.erase(path_trunc.begin(), path_trunc.begin() + trunc_idx);
+  }
 
-    if(!path_trunc.size())
-    {            //if path_tranc contains no points than use path_comp;
-      path_trunc = std::move(path_comp);
-    }
+  if(!path_trunc.size())
+  {            //if path_tranc contains no points than use path_comp;
+    path_trunc = std::move(path_comp);
   }
 
   ROS_INFO("Path.size: %d", (int )path_trunc.size());
@@ -463,8 +480,6 @@ void RonaMove::subPath_callback(const nav_msgs::Path& msg_)
   //pub false
   _pub_state.publish(reachedTarget);
 }
-
-
 
 void RonaMove::subPause_callback(const std_msgs::Bool& msg)
 {
@@ -484,24 +499,13 @@ void RonaMove::subPause_callback(const std_msgs::Bool& msg)
 
 void RonaMove::subCtrl_callback(const rona_msgs::NodeCtrl& msg)
 {
-  if(msg.cmd == msg.PAUSE)
-  {
-    if(_state == State::MOVE) //only pause when moving...
-      _state = State::PAUSE;
-  }
-  else if(msg.cmd == msg.CONTINUE)
-  {            //continue only if is in pause state
-    if(_state == State::PAUSE)
-    {
-      _state = State::MOVE;
-    }
-  }
-  else if(msg.cmd == msg.STOP)
-  {
-    _state = State::STOP;
-    //clean analyser path...
-    _pathAnalyser->clear();
-  }
+  this->processNodeCtrl(msg);
+}
+
+bool RonaMove::srvNodeCtrl_callback(rona_msgs::NodeCtrlSRVRequest& req, rona_msgs::NodeCtrlSRVResponse& res)
+{
+  res.accepted = this->processNodeCtrl(req.ctrl);
+  return true;
 }
 
 bool RonaMove::srvReverseOn_callback(std_srvs::EmptyRequest& req, std_srvs::EmptyResponse& res)
@@ -525,6 +529,39 @@ bool RonaMove::srvReverseSw_callback(std_srvs::EmptyRequest& req, std_srvs::Empt
   ROS_INFO("RonaMove -> sw reverseMode caled -> after state: %s", _reverseMode ? "true" : "false");
   return true;
 }
+
+bool RonaMove::processNodeCtrl(const rona_msgs::NodeCtrl& msg)
+{
+  if(msg.cmd == msg.PAUSE)
+  {
+    if(_state == State::MOVE) //only pause when moving...
+    {
+      _state = State::PAUSE;
+      return true;
+    }
+    return false;
+  }
+  else if(msg.cmd == msg.CONTINUE)
+  {            //continue only if is in pause state
+    if(_state == State::PAUSE)
+    {
+      _state = State::MOVE;
+      return true;
+    }
+    return false;
+  }
+  else if(msg.cmd == msg.STOP)
+  {
+    _state = State::STOP;
+    //clean analyser path...
+    _pathAnalyser->clear();
+    return true;
+  }
+
+  // should not be reached...
+  return true;
+}
+
 
 //--------main-----------------
 

@@ -2,7 +2,7 @@
 <launch>
    <!-- Path controller -->
    <!--node name="rona_move_node" pkg="rona_move" type="rona_move_node" output="screen"-->
-   <node name="rona_move_node" pkg="rona_move" type="rona_move_node">
+   <node name="rona_move_node" pkg="rona_move" type="rona_move_node" output="screen">
       <param name="pub_cmd_vel_topic"        type="string" value="/robot0/cmd_vel"           />
       <param name="pub_state_topic"          type="string" value="rona/move/state"   />
       <param name="pub_process_topic"        type="string" value="rona/move/process" />

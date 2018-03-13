@@ -59,6 +59,7 @@ add_service_files(
    FILES
    PlanPath.srv
    GetFrontierTarget.srv
+   NodeCtrlSRV.srv
 #   Service1.srv
 #   Service2.srv
 )

@@ -12,6 +12,7 @@
 #include <tf/transform_listener.h>
 #include <std_srvs/Empty.h>
 
+#include <rona_msgs/NodeCtrlSRV.h>
 #include <rona_msgs/NodeCtrl.h>
 #include <visualization_msgs/Marker.h>
 
@@ -24,6 +25,7 @@
 //#include <limits>
 
 #include <rona_lib/Utility.h>
+#include <rona_lib/Timer.h>
 
 #include "PathAnalyser/PathAnalyser_base.h"
 #include "Controller/Controller_base.h"
@@ -44,11 +46,6 @@ using namespace Eigen;
  * Pfad ankommen -> State zu Stop.
  *
  * Reached final goal nur true wenn kein empty pfad ist
- *
- */
-/**
- * @todo recovery behaviour
- * @todo fix shitty coding (missing const ect...)
  */
 class RonaMove
 {
@@ -110,9 +107,13 @@ private:  //functions
    */
   void subCtrl_callback(const rona_msgs::NodeCtrl& msg);
 
+  bool srvNodeCtrl_callback(rona_msgs::NodeCtrlSRVRequest& req, rona_msgs::NodeCtrlSRVResponse& res);
   bool srvReverseOn_callback(std_srvs::EmptyRequest& req, std_srvs::EmptyResponse& res);
   bool srvReverseOff_callback(std_srvs::EmptyRequest& req, std_srvs::EmptyResponse& res);
   bool srvReverseSw_callback(std_srvs::EmptyRequest& req, std_srvs::EmptyResponse& res);
+
+
+  bool processNodeCtrl(const rona_msgs::NodeCtrl& msg);
 
 private:
   //dataelements
@@ -127,7 +128,8 @@ private:
   ros::Subscriber _sub_path;
   ros::Subscriber _sub_pause;
   ros::Subscriber _sub_ctrl;
-
+  
+  ros::ServiceServer _srv_node_ctrl;
   ros::ServiceServer _srv_reverse_on;
   ros::ServiceServer _srv_reverse_off;
   ros::ServiceServer _srv_reverse_sw;
@@ -166,6 +168,8 @@ private:
 
   double _min_vel_value;
   double _robot_radius;
+
+  double _path_truncate;
 
   double _tf_stamp_offset;
   bool _use_tf_stamp_offset;

@@ -36,7 +36,7 @@ public:
    virtual ~PDController()
    {}
 
-   virtual controller::velocity control(double linear_x, double linear_y, double angular)
+   virtual controller::velocity control(const double linear_x, const double linear_y, const double angular)
    {
       controller::velocity vel;
 
@@ -50,16 +50,16 @@ public:
    }
 
 private: //functions
-   double lin(double scale, double value, double max_value)
+   double lin(const double scale, const double value, const double max_value)
    {
-      max_value = std::abs(max_value);
+      double max_val = std::abs(max_value);
       int sng = value > 0 ? 1 : -1;
       double tmp = 0;
       tmp = scale * value;
-      return std::abs(tmp) > max_value ? (max_value * sng) : tmp;
+      return std::abs(tmp) > max_val ? (max_val * sng) : tmp;
    }
 
-   double pd_control(double error)
+   double pd_control(const double error)
    {
       //return _ang_vel_old + _K_R * error - (_K_R* (1 - (_T/_T_n))) * _ang_err_old;
       //double y = _K_p * ( error + ((_T_v/_T_ab) * (error - _ang_err_old)));

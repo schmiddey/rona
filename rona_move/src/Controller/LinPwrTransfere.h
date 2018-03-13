@@ -44,7 +44,7 @@ public:
     this->fix_max(_pwr_ratio_ang_fac, 1.0);
   }
 
-   virtual controller::velocity control(double linear_x, double linear_y, double angular)
+   virtual controller::velocity control(const double linear_x, const double linear_y, const double angular)
    {
      controller::velocity vel;
 

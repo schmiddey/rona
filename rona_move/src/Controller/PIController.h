@@ -16,12 +16,12 @@ namespace controller
 class PIController: public Controller_base
 {
 public:
-   PIController(double max_vel_lin,
-                double max_vel_ang,
-                double lin_fac,
-                double T,
-                double T_n,
-                double K_r)
+   PIController(const double max_vel_lin,
+                const double max_vel_ang,
+                const double lin_fac,
+                const double T,
+                const double T_n,
+                const double K_r)
    {
       _max_vel_lin  = max_vel_lin ;
       _max_vel_ang  = max_vel_ang ;
@@ -37,7 +37,7 @@ public:
    virtual ~PIController()
    {}
 
-   virtual controller::velocity control(double linear_x, double linear_y, double angular)
+   virtual controller::velocity control(const double linear_x, const double linear_y, const double angular)
    {
       controller::velocity vel;
 
@@ -55,16 +55,16 @@ public:
    }
 
 private: //functions
-   double lin(double scale, double value, double max_value)
+   double lin(const double scale, const double value, const double max_value)
    {
-      max_value = std::abs(max_value);
+      double max_val = std::abs(max_value);
       int sng = value > 0 ? 1 : -1;
       double tmp = 0;
       tmp = scale * value;
-      return std::abs(tmp) > max_value ? (max_value * sng) : tmp;
+      return std::abs(tmp) > max_val ? (max_val * sng) : tmp;
    }
 
-   double pi_control(double error)
+   double pi_control(const double error)
    {
       return _ang_vel_old + _K_R * error - (_K_R* (1 - (_T/_T_n))) * _ang_err_old;
    }

@@ -23,7 +23,7 @@ public:
    Controller_base() {}
    virtual ~Controller_base() {}
 
-   virtual controller::velocity control(double linear_x, double linear_y, double angular) = 0;
+   virtual controller::velocity control(const double linear_x, const double linear_y, const double angular) = 0;
 
 };
 

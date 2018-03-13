@@ -50,6 +50,13 @@ public:
 //      return x == y || std::abs(x-y) < std::abs(std::min(x, y)) * std::numeric_limits<T>::epsilon() * error_factor;
 //   }
 
+  static inline double computeDist(const geometry_msgs::Point& a, const geometry_msgs::Point& b)
+  {
+   double x = b.x - a.x;
+   double y = b.y - a.y;
+   return std::sqrt(x*x + y*y);
+  }
+
 
    /**
     * @brief returns proved value by abs_min_value if(abs(val) < min) return 0

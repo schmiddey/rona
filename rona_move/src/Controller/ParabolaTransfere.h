@@ -30,10 +30,10 @@ public:
          double parabola_ang_fac);
    virtual ~ParabolaTransfere();
 
-   virtual controller::velocity control(double linear_x, double linear_y, double angular);
+   virtual controller::velocity control(const double linear_x, const double linear_y, const double angular);
 
 private: //functions
-   double parabola(double scale, double value, double max_vale);
+   double parabola(const double scale, const double value, const double max_vale);
 
 private: //dataelements
    double _max_vel_lin;
