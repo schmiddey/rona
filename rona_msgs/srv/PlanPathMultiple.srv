@@ -1,0 +1,6 @@
+geometry_msgs/Pose[]     origin #if empty use tf, if less origin then the last origin is used for the left overs...
+geometry_msgs/Pose[]     target
+int32                scale # between 0.0 and 1.0
+---
+float64[]                length
+nav_msgs/Path[]          path

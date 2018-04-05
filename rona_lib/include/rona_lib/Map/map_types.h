@@ -47,10 +47,24 @@ struct Polygon{
    Polygon(const std::vector<Point2D>& p) { points = p; } //cpy
 };
 
+
+struct RectPixel
+{
+  Pixel p;
+  unsigned int w;
+  unsigned int h;
+  RectPixel() : p(), w(0), h(0) { }
+  RectPixel(const Pixel& _p, const unsigned int _w, const unsigned int _h) :
+  p(_p), w(_w), h(_h) { }
+};
+
 struct Rect2D{
-   Point2D p;
-   double w;
-   double h;
+  Point2D p;
+  double w;
+  double h;
+  Rect2D() : p(), w(0), h(0) { }
+  Rect2D(const Point2D& _p, const unsigned int _w, const unsigned int _h) :
+  p(_p), w(_w), h(_h) { }
 };
 
 
@@ -92,10 +106,16 @@ inline std::ostream& operator<<(std::ostream& os, const rona::map::PixelSigned& 
 
 inline std::ostream& operator<<(std::ostream& os, const rona::map::Polygon& p)
 {
-   for(auto e : p.points)
+   for(const auto& e : p.points)
    {
       os << "( " << e << " )";
    }
+   return os;
+}
+
+inline std::ostream& operator<<(std::ostream& os, const rona::map::RectPixel& r)
+{
+   os << "(p:" << r.p << ", w: " << r.w << ", h: " << r.h << ")" ;
    return os;
 }
 
@@ -108,7 +128,7 @@ inline std::ostream& operator<<(std::ostream& os, const rona::map::Rect2D& r)
 inline std::ostream& operator<<(std::ostream& os, const rona::map::Path& p)
 {
    os << "Path.size(): " << p.size() << " ,Nodes.pos: " << std::endl;
-   for(auto& e : p)
+   for(const auto& e : p)
    {
       os << e.pos << std::endl;
    }

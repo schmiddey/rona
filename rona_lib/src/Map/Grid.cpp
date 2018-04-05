@@ -20,7 +20,7 @@ Grid::Grid(const std::weak_ptr<Grid> grid)
       return;
    }
    auto sg = grid.lock();
-   this->init(sg->getWidth(), sg->getHeight(), sg->getCellSize(), sg->getOriginPoint2D());
+   this->init(sg->getWidth(), sg->getHeight(), sg->getCellSize(), sg->getOrigin());
 
    //copy data via std::vector =
    _data = sg->getData();
@@ -28,9 +28,7 @@ Grid::Grid(const std::weak_ptr<Grid> grid)
 
 
 Grid::~Grid()
-{
-   //todo
-}
+{ }
 
 bool Grid::isCompatible(const Grid& grid) const
 {
@@ -51,15 +49,10 @@ bool Grid::isCompatible(const Grid& grid) const
 
 void Grid::init(const unsigned int width, const unsigned int height, const double cellSize, const Point2D origin)
 {
-   _width = width;
-   _height = height;
-   _cellSize = cellSize;
-
-   //round todo
-
-   //compute from to Pixel
-   _origin.x = std::round((origin.x - _cellSize * 0.5) / _cellSize);
-   _origin.y = std::round((origin.y - _cellSize * 0.5) / _cellSize);
+  _width = width;
+  _height = height;
+  _cellSize = cellSize;
+  _origin = origin;
 }
 
 } /* namespace map */

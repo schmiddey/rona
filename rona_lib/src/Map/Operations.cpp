@@ -15,495 +15,446 @@ namespace rona
 namespace map
 {
 
-void Operations::binarize(std::weak_ptr<Grid> grid,
-                             uint8_t min,
-                             uint8_t max,
-                             uint8_t vel_in,
-                             uint8_t vel_out)
+void Operations::binarize(Grid& grid,
+                          uint8_t min,
+                          uint8_t max,
+                          uint8_t vel_in,
+                          uint8_t vel_out)
 {
-   if(grid.expired())
-      return;
-   auto sgrid = grid.lock();
+  std::vector<uint8_t>& g = grid.getData();
 
-
-   //note: auto not working ... no ref to data...???
-   //elemment c = vector[x];
-//   for(auto& c : sgrid->getData())
-//   {
-//      if(c >= min && c <= max) //in range
-//      {
-//         c = vel_in;
-//      }
-//      else           //out range
-//      {
-//         c = vel_out;
-//      }
-//   }
-
-   std::vector<uint8_t>& g = sgrid->getData();
-
-   for(unsigned int i=0; i<g.size(); ++i)
-   {
-      if(g[i] >= min && g[i] <= max) //in range
-      {
-         g[i] = vel_in;
-      }
-      else           //out range
-      {
-         g[i] = vel_out;
-      }
-   }
+  for(unsigned int i = 0; i < g.size(); ++i)
+  {
+    if (g[i] >= min && g[i] <= max) //in range
+    {
+      g[i] = vel_in;
+    }
+    else //out range
+    {
+      g[i] = vel_out;
+    }
+  }
 }
 
-void Operations::inflateRect(std::weak_ptr<Grid> grid, uint8_t val_min, uint8_t val_max, double offset)
+void Operations::inflateRect(Grid& grid, uint8_t val_min, uint8_t val_max, double offset)
 {
-   if(grid.expired())
-      return;
-   std::shared_ptr<Grid> sgrid = grid.lock();
+  //must be int...
+  int num = grid.getCellCnt();
+  int width = grid.getWidth();
+  int height = grid.getHeight();
 
-   //must be int...
-   int num = sgrid->getCellCnt();
-   int width = sgrid->getWidth();
-   int height = sgrid->getHeight();
+  uint8_t offset_ = std::round(offset / (double)grid.getCellSize());
 
-   uint8_t offset_ = std::round(offset / (double)sgrid->getCellSize());
+  std::vector<uint8_t>& target_grid = grid.getData();
+  //copy
+  std::vector<uint8_t> tmp_grid = target_grid;
 
-   std::vector<uint8_t>& target_grid = sgrid->getData();
-   //copy
-   std::vector<uint8_t> tmp_grid = target_grid;
+  //read tmp_map ... write origin map
+  for(int i=0; i < (int)num; ++i)
+  {
+    //prove if surrounded by val ... after testing .. very efficient
+    if(i > width && i < (width * (height - 1)) &&
+      tmp_grid[i - 1] >= val_min && tmp_grid[i - 1] <= val_max &&
+      tmp_grid[i + 1] >= val_min && tmp_grid[i + 1] <= val_max &&
+      tmp_grid[i - width] >= val_min && tmp_grid[i - width] <= val_max &&
+      tmp_grid[i + width] >= val_min && tmp_grid[i + width] <= val_max)
+      continue;
 
-   //read tmp_map ... write origin map
-   for(int i = 0; i < (int)num; ++i)
-   {
+    if(tmp_grid[i] >= val_min && tmp_grid[i] <= val_max) // get val points
+    {
+      int x = i % width;
+      int y = i / width;
+      for(int yi = y - offset_; yi < y + offset_; ++yi)
+      {
+        for(int xi = x - offset_; xi < x + offset_; ++xi)
+        {
+          int idx = yi * width + xi;
+          if (idx >= 0 && idx < num)
+            target_grid[idx] = tmp_grid[i];
+        }
+      }
+    }
+  }
+}
+
+void Operations::distnaceTransformRect(Grid &grid, double offset, uint8_t wall_val)
+{
+  //must be int...
+  int num = grid.getCellCnt();
+  int width = grid.getWidth();
+  int height = grid.getHeight();
+
+  uint8_t offset_ = std::round(offset / (double)grid.getCellSize());
+
+  std::vector<uint8_t>& dat = grid.getData();
+
+  //compute loockuptable:
+  int x = offset_;                                                   //middle point
+  int y = offset_;                                                   //middle point
+  std::vector<uint8_t> lt((2 * offset_ + 1) * (2 * offset_ + 1), 0); //init with 0
+
+  for(unsigned int off = 0; off <= offset_; ++off)
+  {
+    int val = (offset_ - off) * (255 / offset_);
+    val = (val > 254) ? 254 : val;
+    for(unsigned int yi = y - off; yi < y + off; ++yi)
+    {
+      for(unsigned int xi = x - off; xi < x + off; ++xi)
+      {
+        int idx = yi * (2 * offset_ + 1) + xi;
+        lt[idx] = (lt[idx] > val) ? lt[idx] : val;
+      }
+    }
+  }
+
+  //do distance transform:
+  for(int i = 0; i < num; ++i)
+  {
+    if(dat[i] == wall_val) // get wall points
+    {
+      int x = i % width;
+      int y = i / width;
+
+      //prove if surrounded by wall ... after testing .. very efficient
+      if(i > width && i < (width * (height - 1)) && 
+        dat[i - 1] == wall_val && 
+        dat[i + 1] == wall_val && 
+        dat[i - width] == wall_val && 
+        dat[i + width] == wall_val)
+        continue;
+
+      for(int yi = y - offset_, ylt = 0; yi < y + offset_; ++yi, ++ylt)
+      {
+        int idx_ = yi * width;
+        int idxlt_ = ylt * (2 * offset_ + 1);
+        for(int xi = x - offset_, xlt = 0; xi < x + offset_; ++xi, ++xlt)
+        {
+          int idx = idx_ + xi;
+          int idxlt = idxlt_ + xlt;
+
+          if(idx >= 0 && idx < num)
+          {
+            if(dat[idx] < lt[idxlt])
+            {
+              dat[idx] = lt[idxlt];
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+void Operations::inflateCirc(Grid& grid, uint8_t val_min, uint8_t val_max, double offset)
+{
+  int num = grid.getCellCnt();
+  int width = grid.getWidth();
+  int height = grid.getHeight();
+
+  int offset_ = std::round(offset / grid.getCellSize());
+
+  std::vector<uint8_t>& target_grid = grid.getData();
+  //copy
+  std::vector<uint8_t> tmp_grid = target_grid;
+
+  //compute loockuptable:
+  int x = offset_; //middle point
+  int y = offset_; //middle point
+
+  unsigned int width_lt = 2 * offset_ + 1;
+  std::vector<uint8_t> lt(width_lt * width_lt, 0); //init with 0
+
+  Pixel c(x, y);
+
+  //draw filled circ in lt
+  for(unsigned int i = 0; i < width_lt * width_lt; ++i)
+  {
+    Pixel p = Operations::idxToPixel(i, width_lt);
+    //prove if point is in circ
+    if (((int)p.x - x) * ((int)p.x - x) + ((int)p.y - y) * ((int)p.y - y) < ((offset_ + 1) * (offset_ + 1)))
+    {
+      lt[i] = val_max;
+    }
+  }
+
+  //debug
+  // cv::Mat tmp_img(cv::Size(width_lt, width_lt),
+  //                 CV_8UC1,
+  //                 (unsigned char*) &lt[0], //address of first vector element
+  //                 cv::Mat::AUTO_STEP);
+  // cv::imwrite("/tmp/lt.png", tmp_img);
+
+  //do inflation
+  for(int i = 0; i < num; ++i)
+  {
+    if(tmp_grid[i] >= val_min && tmp_grid[i] <= val_max) // get wall points
+    {
+      int x = i % width;
+      int y = i / width;
+
       //prove if surrounded by val ... after testing .. very efficient
       if(i > width && i < (width * (height - 1)) &&
-         tmp_grid[i-1] >= val_min && tmp_grid[i-1] <= val_max &&
-         tmp_grid[i+1] >= val_min && tmp_grid[i+1] <= val_max &&
+         tmp_grid[i - 1] >= val_min && tmp_grid[i - 1] <= val_max &&
+         tmp_grid[i + 1] >= val_min && tmp_grid[i + 1] <= val_max &&
          tmp_grid[i - width] >= val_min && tmp_grid[i - width] <= val_max &&
-         tmp_grid[i+width] >= val_min && tmp_grid[i+width] <= val_max)
-         continue;
+         tmp_grid[i + width] >= val_min && tmp_grid[i + width] <= val_max)
+        continue;
 
-      if(tmp_grid[i] >= val_min && tmp_grid[i] <= val_max) // get val points
+      for(int yi = y - offset_, ylt = 0; yi < y + offset_ + 1; ++yi, ++ylt)
       {
-         int x = i % width;
-         int y = i / width;
-         for(int yi = y-offset_; yi < y+offset_; ++yi)
-         {
-            for(int xi = x - offset_; xi < x+offset_; ++xi)
+        int idx_ = yi * width;
+        int idxlt_ = ylt * (2 * offset_ + 1);
+        for(int xi = x - offset_, xlt = 0; xi < x + offset_ + 1; ++xi, ++xlt)
+        {
+          int idx = idx_ + xi;
+          int idxlt = idxlt_ + xlt;
+
+          if(idx >= 0 && idx < num)
+          {
+            if(tmp_grid[idx] < lt[idxlt])
             {
-               int idx = yi * width + xi;
-               if(idx >= 0 && idx < num)
-                  target_grid[idx] = tmp_grid[i];
+              target_grid[idx] = lt[idxlt];
             }
-         }
+          }
+        }
       }
-   }
+    }
+  }
+
+  //   cv::Mat mat_lt(cv::Size(width_lt, width_lt),
+  //                  CV_8UC1,
+  //                  (unsigned char*) lt,
+  //                  cv::Mat::AUTO_STEP);
+  //
+  //   cv::imwrite("/tmp/lt_circ.png", mat_lt);
 }
 
-void Operations::distnaceTransformRect(std::weak_ptr<Grid> grid, double offset, uint8_t wall_val)
+void Operations::distnaceTransformCirc(Grid& grid, double offset, uint8_t wall_val)
 {
-   if(grid.expired())
-      return;
-   std::shared_ptr<Grid> sgrid = grid.lock();
+  int num = grid.getCellCnt();
+  int width = grid.getWidth();
+  int height = grid.getHeight();
 
-   //must be int...
-   int num = sgrid->getCellCnt();
-   int width = sgrid->getWidth();
-   int height = sgrid->getHeight();
+  int offset_ = std::round(offset / (double)grid.getCellSize());
 
-   uint8_t offset_ = std::round(offset / (double)sgrid->getCellSize());
+  if(offset_ == 0)
+  {//nothing to do
+     return;
+  }
 
-   std::vector<uint8_t>& dat = sgrid->getData();
+  std::vector<uint8_t>& target_grid = grid.getData();
+  //copy
+  std::vector<uint8_t> tmp_grid = target_grid;
 
-   //compute loockuptable:
-   int x = offset_;   //middle point
-   int y = offset_;   //middle point
-   std::vector<uint8_t> lt((2 * offset_ + 1) * (2 * offset_ + 1), 0); //init with 0
+  //compute loockuptable:
+  int x = offset_;   //middle point
+  int y = offset_;   //middle point
+  unsigned int width_lt = 2 * offset_ +1;
+  std::vector<uint8_t> lt(width_lt * width_lt, 0); //init with 0
 
-   for(unsigned int off = 0; off <= offset_; ++off)
-   {
-      int val = (offset_ - off) * (255 / offset_);
-      val = (val > 254) ? 254 : val;
-      for(unsigned int yi = y - off; yi < y + off ; ++yi)
+  Pixel c(x,y);
+
+  for(unsigned int i = 0; i < width_lt * width_lt; ++i)
+  {
+    Pixel p = Operations::idxToPixel(i, width_lt);
+    //prove if point is in circ
+    if(((int)p.x - x) * ((int)p.x - x) + ((int)p.y - y) * ((int)p.y - y) < ((offset_ + 1) * (offset_ + 1)))
+    //if((p.x - x)*(p.x - x) + (p.y - y)*(p.y - y) < ((offset_+1)*(offset_+1)))
+    {
+      //get euclidean distance and normalize to 1
+      double x_d = x - (int)p.x;
+      double y_d = y - (int)p.y;
+
+      double d = ::sqrt(x_d * x_d + y_d * y_d);
+
+      d /= std::round((double)(offset_ + 1));
+      //std::cout << "-> d: " << d << std::endl;
+      lt[i] = (uint8_t)(255 * (1 - d));
+    }
+  }
+
+  //   //debug
+  //   cv::Mat tmp_img(cv::Size(width_lt, width_lt),
+  //                   CV_8UC1,
+  //                   (unsigned char*) &lt[0], //address of first vector element
+  //                   cv::Mat::AUTO_STEP);
+  //   cv::imwrite("/tmp/lt.png", tmp_img);
+
+  //do dt
+  for(int i = 0; i < num; ++i)
+  {
+    if(tmp_grid[i] == wall_val) // get wall points
+    {
+      int x = i % width;
+      int y = i / width;
+
+      //prove if surrounded by wall ... after testing .. very efficient
+      if(i > width && i < (width * (height - 1)) &&
+         target_grid[i - 1] == wall_val &&
+         target_grid[i + 1] == wall_val &&
+         target_grid[i - width] == wall_val &&
+         target_grid[i + width] == wall_val)
+        continue;
+
+      for(int yi = y - offset_, ylt = 0; yi < y + offset_ + 1; ++yi, ++ylt)
       {
-         for(unsigned int xi = x - off; xi < x + off; ++xi)
-         {
-            int idx = yi * (2* offset_ +1) + xi;
-            lt[idx] = (lt[idx] > val) ? lt[idx] : val;
-         }
-      }
-   }
+        int idx_ = yi * width;
+        int idxlt_ = ylt * (2 * offset_ + 1);
+        for(int xi = x - offset_, xlt = 0; xi < x + offset_ + 1; ++xi, ++xlt)
+        {
+          int idx = idx_ + xi;
+          int idxlt = idxlt_ + xlt;
 
-   //do distance transform:
-   for(int i = 0; i < num; ++i)
-   {
-      if(dat[i] == wall_val) // get wall points
-      {
-         int x = i % width;
-         int y = i / width;
-
-         //prove if surrounded by wall ... after testing .. very efficient
-         if(i > width && i < (width * (height - 1)) && dat[i-1] == wall_val && dat[i+1] == wall_val && dat[i - width] == wall_val && dat[i+width] == wall_val)
-            continue;
-
-         for(int yi = y-offset_, ylt = 0; yi < y+offset_; ++yi, ++ylt)
-         {
-            int idx_ = yi * width;
-            int idxlt_ = ylt * (2 * offset_ + 1);
-            for(int xi = x - offset_, xlt = 0; xi < x+offset_; ++xi, ++xlt)
+          if(idx >= 0 && idx < num)
+          {
+            if(target_grid[idx] < lt[idxlt])
             {
-               int idx = idx_ + xi;
-               int idxlt = idxlt_ + xlt;
-
-               if(idx >= 0 && idx < num)
-               {
-                  if(dat[idx] < lt[idxlt])
-                  {
-                     dat[idx] = lt[idxlt];
-                  }
-               }
+              target_grid[idx] = lt[idxlt];
             }
-         }
+          }
+        }
       }
-   }
+    }
+  }
+
+  //   cv::Mat mat_lt(cv::Size(width_lt, width_lt),
+  //                  CV_8UC1,
+  //                  (unsigned char*) lt,
+  //                  cv::Mat::AUTO_STEP);
+  //
+  //   cv::imwrite("/tmp/lt_dt_circ.png", mat_lt);
+}
+
+void Operations::drawFilledCircle(Grid& grid, Point2D circ_center, double radius,  uint8_t circ_value)
+{
+  Pixel circ_c = grid.toPixel(circ_center);
+
+  unsigned int rad = std::abs(std::round(radius / (double)grid.getCellSize()));
+
+  //define rect around circle:
+  unsigned int xc = (circ_c.x <= rad) ? 0 : circ_c.x - rad;
+  unsigned int yc = (circ_c.y <= rad) ? 0 : circ_c.y - rad;
+  unsigned int wc = 2 * (rad + 1);
+
+  //iterate over all rect pixel an prove if they are in circle
+  for(unsigned int y = yc; y < (wc + yc); ++y)
+  {
+    for(unsigned int x = xc; x < (wc + xc); ++x)
+    {
+      //prove if it is inside circ
+      if((x - circ_c.x) * (x - circ_c.x) + (y - circ_c.y) * (y - circ_c.y) < (rad * rad))
+      {
+        Pixel p;
+        p.x = x;
+        p.y = y;
+
+        unsigned int idx = grid.toIdx(p);
+        if(idx < grid.getWidth() * grid.getHeight())
+          grid.getData()[idx] = circ_value;
+      }
+    }
+  }
+}
+
+void Operations::overdrawFilledCircle(Grid& grid,
+                                      Point2D circ_center,
+                                      double radius,
+                                      uint8_t circ_value,
+                                      uint8_t min_draw,
+                                      uint8_t max_draw)
+{
+  Pixel circ_c = grid.toPixel(circ_center);
+
+  unsigned int rad = std::abs(std::round(radius / (double)grid.getCellSize()));
+
+  //define rect around circle:
+  unsigned int xc = (circ_c.x <= rad) ? 0 : circ_c.x - rad;
+  unsigned int yc = (circ_c.y <= rad) ? 0 : circ_c.y - rad;
+  unsigned int wc = 2 * (rad + 1);
+
+  //iterate over all rect pixel an prove if they are in circle
+  for(unsigned int y = yc; y < (wc + yc); ++y)
+  {
+    for(unsigned int x = xc; x < (wc + xc); ++x)
+    {
+      //prove if it is inside circ
+      if((x - circ_c.x) * (x - circ_c.x) + (y - circ_c.y) * (y - circ_c.y) < (rad * rad))
+      {
+        Pixel p;
+        p.x = x;
+        p.y = y;
+
+        unsigned int idx = grid.toIdx(p);
+
+        if(idx < grid.getWidth() * grid.getHeight() && grid.getData()[idx] >= min_draw && grid.getData()[idx] <= max_draw)
+          grid.getData()[idx] = circ_value;
+      }
+    }
+  }
 }
 
 
-void Operations::inflateCirc(std::weak_ptr<Grid> grid, uint8_t val_min, uint8_t val_max, double offset)
+void Operations::drawFilledRect(Grid& grid, Point2D rect_p, double rect_w, double rect_h, uint8_t rect_value)
 {
-   if(grid.expired())
-      return;
-   std::shared_ptr<Grid> sgrid = grid.lock();
+  Pixel p = grid.toPixel(rect_p);
+  unsigned int w = std::abs(std::round(rect_w / (double)grid.getCellSize()));
+  unsigned int h = std::abs(std::round(rect_h / (double)grid.getCellSize()));
 
-   int num = sgrid->getCellCnt();
-   int width = sgrid->getWidth();
-   int height = sgrid->getHeight();
+  std::vector<uint8_t>& data = grid.getData();
 
-   uint8_t offset_ = std::round(offset / (double)sgrid->getCellSize());
+  for(unsigned int y = p.y; y < (p.y + h); ++y)
+  {
+    for(unsigned int x = p.x; x < (p.x + w); ++x)
+    {
+      Pixel tmp;
+      tmp.x = x;
+      tmp.y = y;
+      unsigned int idx = grid.toIdx(tmp);
 
-   std::vector<uint8_t>& target_grid = sgrid->getData();
-   //copy
-   std::vector<uint8_t> tmp_grid = target_grid;
-
-   //compute loockuptable:
-   int x = offset_;   //middle point
-   int y = offset_;   //middle point
-   unsigned int width_lt = 2 * offset_ +1;
-   std::vector<uint8_t> lt(width_lt * width_lt, 0); //init with 0
-
-   Pixel c(x,y);
-
-   //draw filled circ in lt
-   for(unsigned int i = 0; i < width_lt * width_lt; ++i)
-   {
-      Pixel p = Operations::idxToPixel(i,width_lt);
-      //prove if point is in circ
-      if(((int)p.x - x)*((int)p.x - x) + ((int)p.y - y)*((int)p.y - y) < ((offset_+1)*(offset_+1)))
+      if(x >= 0 && x < grid.getWidth() && y >= 0 && y < grid.getHeight())
       {
-         lt[i] = val_max;
+        data[idx] = rect_value;
       }
-   }
-
-   //do inflation
-   for(int i = 0; i < num; ++i)
-   {
-      if(tmp_grid[i] >= val_min && tmp_grid[i] <= val_max) // get wall points
-      {
-         int x = i % width;
-         int y = i / width;
-
-         //prove if surrounded by val ... after testing .. very efficient
-         if(i > width && i < (width * (height - 1)) &&
-            tmp_grid[i-1] >= val_min && tmp_grid[i-1] <= val_max &&
-            tmp_grid[i+1] >= val_min && tmp_grid[i+1] <= val_max &&
-            tmp_grid[i - width] >= val_min && tmp_grid[i - width] <= val_max &&
-            tmp_grid[i+width] >= val_min && tmp_grid[i+width] <= val_max)
-            continue;
-
-         for(int yi = y-offset_, ylt = 0; yi < y+offset_; ++yi, ++ylt)
-         {
-            int idx_ = yi * width;
-            int idxlt_ = ylt * (2 * offset_ + 1);
-            for(int xi = x - offset_, xlt = 0; xi < x+offset_; ++xi, ++xlt)
-            {
-               int idx = idx_ + xi;
-               int idxlt = idxlt_ + xlt;
-
-               if(idx >= 0 && idx < num)
-               {
-                  if(tmp_grid[idx] < lt[idxlt])
-                  {
-                     target_grid[idx] = lt[idxlt];
-                  }
-               }
-            }
-         }
-      }
-   }
-
-
-//   cv::Mat mat_lt(cv::Size(width_lt, width_lt),
-//                  CV_8UC1,
-//                  (unsigned char*) lt,
-//                  cv::Mat::AUTO_STEP);
-//
-//   cv::imwrite("/tmp/lt_circ.png", mat_lt);
-
-}
-
-void Operations::distnaceTransformCirc(std::weak_ptr<Grid> grid, double offset, uint8_t wall_val)
-{
-   if(grid.expired())
-      return;
-   std::shared_ptr<Grid> sgrid = grid.lock();
-
-   int num = sgrid->getCellCnt();
-   int width = sgrid->getWidth();
-   int height = sgrid->getHeight();
-
-   uint8_t offset_ = std::round(offset / (double)sgrid->getCellSize());
-
-   if(offset_ == 0)
-   {//nothing to do
-      return;
-   }
-
-   std::vector<uint8_t>& target_grid = sgrid->getData();
-   //copy
-   std::vector<uint8_t> tmp_grid = target_grid;
-
-   //compute loockuptable:
-   int x = offset_;   //middle point
-   int y = offset_;   //middle point
-   unsigned int width_lt = 2 * offset_ +1;
-   std::vector<uint8_t> lt(width_lt * width_lt, 0); //init with 0
-
-   Pixel c(x,y);
-
-   for(unsigned int i = 0; i < width_lt * width_lt; ++i)
-   {
-      Pixel p = Operations::idxToPixel(i,width_lt);
-      //prove if point is in circ
-      if(((int)p.x - x)*((int)p.x - x) + ((int)p.y - y)*((int)p.y - y) < ((offset_+1)*(offset_+1)))
-      //if((p.x - x)*(p.x - x) + (p.y - y)*(p.y - y) < ((offset_+1)*(offset_+1)))
-      {
-         //get euclidean distance and normalize to 1
-         double x_d = x - (int)p.x;
-         double y_d = y - (int)p.y;
-
-         double d = ::sqrt(x_d * x_d + y_d * y_d);
-
-         d /= std::round((double)(offset_ + 1));
-         //std::cout << "-> d: " << d << std::endl;
-         lt[i] = (uint8_t)(255 * (1 - d));
-      }
-   }
-
-//   //debug
-//   cv::Mat tmp_img(cv::Size(width_lt, width_lt),
-//                   CV_8UC1,
-//                   (unsigned char*) &lt[0], //address of first vector element
-//                   cv::Mat::AUTO_STEP);
-//   cv::imwrite("/tmp/lt.png", tmp_img);
-
-   //do dt
-   for(int i = 0; i < num; ++i)
-   {
-      if(tmp_grid[i] == wall_val) // get wall points
-      {
-         int x = i % width;
-         int y = i / width;
-
-         //prove if surrounded by wall ... after testing .. very efficient
-         if(i > width && i < (width * (height - 1)) &&
-            target_grid[i-1] == wall_val &&
-            target_grid[i+1] == wall_val &&
-            target_grid[i - width] == wall_val &&
-            target_grid[i+width] == wall_val)
-            continue;
-
-         for(int yi = y-offset_, ylt = 0; yi < y+offset_; ++yi, ++ylt)
-         {
-            int idx_ = yi * width;
-            int idxlt_ = ylt * (2 * offset_ + 1);
-            for(int xi = x - offset_, xlt = 0; xi < x+offset_; ++xi, ++xlt)
-            {
-               int idx = idx_ + xi;
-               int idxlt = idxlt_ + xlt;
-
-               if(idx >= 0 && idx < num)
-               {
-                  if(target_grid[idx] < lt[idxlt])
-                  {
-                     target_grid[idx] = lt[idxlt];
-                  }
-               }
-            }
-         }
-      }
-   }
-
-//   cv::Mat mat_lt(cv::Size(width_lt, width_lt),
-//                  CV_8UC1,
-//                  (unsigned char*) lt,
-//                  cv::Mat::AUTO_STEP);
-//
-//   cv::imwrite("/tmp/lt_dt_circ.png", mat_lt);
-}
-
-void Operations::drawFilledCircle(std::weak_ptr<Grid> grid, Point2D circ_center, double radius,  uint8_t circ_value)
-{
-   if(grid.expired())
-      return;
-   std::shared_ptr<Grid> sgrid = grid.lock();
-
-   Pixel circ_c = sgrid->toPixel(circ_center);
-
-   unsigned int rad = std::abs(std::round(radius / (double)sgrid->getCellSize()));
-
-   //define rect around circle:
-   unsigned int xc = (circ_c.x <= rad) ? 0 : circ_c.x - rad;
-   unsigned int yc = (circ_c.y <= rad) ? 0 : circ_c.y - rad;
-   unsigned int wc = 2 * (rad + 1);
-
-   //iterate over all rect pixel an prove if they are in circle
-   for(unsigned int y = yc; y < (wc + yc); ++y)
-   {
-      for(unsigned int x = xc; x < (wc + xc); ++x)
-      {
-         //prove if it is inside circ
-         if( (x - circ_c.x)*(x - circ_c.x) + (y - circ_c.y)*(y - circ_c.y) < (rad * rad) )
-         {
-            Pixel p;
-            p.x = x;
-            p.y = y;
-
-            unsigned int idx = sgrid->toIdx(p);
-            if(idx < sgrid->getWidth() * sgrid->getHeight())
-               sgrid->getData()[idx] = circ_value;
-         }
-      }
-   }
-}
-
-void Operations::overdrawFilledCircle(std::weak_ptr<Grid> grid,
-                                         Point2D circ_center,
-                                         double radius,
-                                         uint8_t circ_value,
-                                         uint8_t min_draw,
-                                         uint8_t max_draw)
-{
-   if(grid.expired())
-      return;
-   std::shared_ptr<Grid> sgrid = grid.lock();
-
-   Pixel circ_c = sgrid->toPixel(circ_center);
-
-   unsigned int rad = std::abs(std::round(radius / (double)sgrid->getCellSize()));
-
-   //define rect around circle:
-   unsigned int xc = (circ_c.x <= rad) ? 0 : circ_c.x - rad;
-   unsigned int yc = (circ_c.y <= rad) ? 0 : circ_c.y - rad;
-   unsigned int wc = 2 * (rad + 1);
-
-   //iterate over all rect pixel an prove if they are in circle
-   for(unsigned int y = yc; y < (wc + yc); ++y)
-   {
-      for(unsigned int x = xc; x < (wc + xc); ++x)
-      {
-         //prove if it is inside circ
-         if( (x - circ_c.x)*(x - circ_c.x) + (y - circ_c.y)*(y - circ_c.y) < (rad * rad) )
-         {
-            Pixel p;
-            p.x = x;
-            p.y = y;
-
-            unsigned int idx = sgrid->toIdx(p);
-
-            if(idx < sgrid->getWidth() * sgrid->getHeight() && sgrid->getData()[idx] >= min_draw && sgrid->getData()[idx] <= max_draw)
-               sgrid->getData()[idx] = circ_value;
-         }
-      }
-   }
-}
-
-
-void Operations::drawFilledRect(std::weak_ptr<Grid> grid, Point2D rect_p, double rect_w, double rect_h, uint8_t rect_value)
-{
-   if(grid.expired())
-      return;
-   std::shared_ptr<Grid> sgrid = grid.lock();
-
-   Pixel p = sgrid->toPixel(rect_p);
-   unsigned int w = std::abs(std::round(rect_w / (double)sgrid->getCellSize()));
-   unsigned int h = std::abs(std::round(rect_h / (double)sgrid->getCellSize()));
-
-   std::vector<uint8_t>& data = sgrid->getData();
-
-   for(unsigned int y = p.y; y < (p.y + h); ++y)
-   {
-      for(unsigned int x = p.x; x < (p.x + w); ++x)
-      {
-         Pixel tmp;
-         tmp.x = x;
-         tmp.y = y;
-         unsigned int idx = sgrid->toIdx(tmp);
-
-         if(x >= 0 && x < sgrid->getWidth() && y >= 0 && y < sgrid->getHeight())
-         {
-            data[idx] = rect_value;
-         }
-      }
-   }
+    }
+  }
 }
 
 
 
-void Operations::overdrawFilledRect(std::weak_ptr<Grid> grid,
-                                       Point2D rect_p,
-                                       double rect_w,
-                                       double rect_h,
-                                       uint8_t rect_value,
-                                       uint8_t min_draw,
-                                       uint8_t max_draw)
+void Operations::overdrawFilledRect(Grid& grid,
+                                    Point2D rect_p,
+                                    double rect_w,
+                                    double rect_h,
+                                    uint8_t rect_value,
+                                    uint8_t min_draw,
+                                    uint8_t max_draw)
 {
-   if(grid.expired())
-      return;
-   std::shared_ptr<Grid> sgrid = grid.lock();
+  Pixel p = grid.toPixel(rect_p);
+  unsigned int w = std::abs(std::round(rect_w / (double)grid.getCellSize()));
+  unsigned int h = std::abs(std::round(rect_h / (double)grid.getCellSize()));
 
-   Pixel p = sgrid->toPixel(rect_p);
-   unsigned int w = std::abs(std::round(rect_w / (double)sgrid->getCellSize()));
-   unsigned int h = std::abs(std::round(rect_h / (double)sgrid->getCellSize()));
+  for(unsigned int y = p.y; y < (p.y + h); ++y)
+  {
+    for(unsigned int x = p.x; x < (p.x + w); ++x)
+    {
+      Pixel tmp;
+      tmp.x = x;
+      tmp.y = y;
+      unsigned int idx = grid.toIdx(tmp);
 
-   for(unsigned int y = p.y; y < (p.y + h); ++y)
-   {
-      for(unsigned int x = p.x; x < (p.x + w); ++x)
+      if(x >= 0 && x < grid.getWidth() && y >= 0 && y < grid.getHeight() && grid.getData()[idx] >= min_draw && grid.getData()[idx] <= max_draw)
       {
-         Pixel tmp;
-         tmp.x = x;
-         tmp.y = y;
-         unsigned int idx = sgrid->toIdx(tmp);
-
-         if(x >= 0 && x < sgrid->getWidth() && y >= 0 && y < sgrid->getHeight() && sgrid->getData()[idx] >= min_draw && sgrid->getData()[idx] <= max_draw)
-         {
-            sgrid->getData()[idx] = rect_value;
-         }
+        grid.getData()[idx] = rect_value;
       }
-   }
+    }
+  }
 }
 
 
 
-std::shared_ptr<Grid> rona::map::Operations::diff(std::weak_ptr<Grid> grid_1, std::weak_ptr<Grid> grid_2)
+std::shared_ptr<Grid> Operations::diff(const Grid& grid_1, const Grid& grid_2)
 {
-   if(grid_1.expired() || grid_2.expired())
-   {
-      std::cerr << "diff(): grid is expired()" << std::endl;
-      return std::shared_ptr<Grid>(new Grid);
-   }
-   auto gr1 = grid_1.lock();
-   auto gr2 = grid_2.lock();
-   if(!gr1->isCompatible(*gr2))
+   if(!grid_1.isCompatible(grid_2))
    {
       std::cerr << "diff() grids not compaible" << std::endl;
       return std::shared_ptr<Grid>(new Grid);
@@ -511,8 +462,8 @@ std::shared_ptr<Grid> rona::map::Operations::diff(std::weak_ptr<Grid> grid_1, st
 
    //cpy grid
    std::shared_ptr<Grid> grid(new Grid(grid_2));
-   std::vector<uint8_t>& g1 = gr1->getData();
-   std::vector<uint8_t>& g2 = gr2->getData();
+   const std::vector<uint8_t>& g1 = grid_1.getData();
+   const std::vector<uint8_t>& g2 = grid_2.getData();
    std::vector<uint8_t>& gx = grid->getData();
    for(unsigned int i=0; i<g1.size(); ++i)
    {
@@ -540,7 +491,7 @@ double Operations::computeDistance(Point2D a, Point2D b)
    return ret;
 }
 
-double Operations::computePathLength(const Path& path, unsigned int start_idx)
+double Operations::computePathLength(const Path& path, const unsigned int start_idx)
 {
    double path_length = 0.0;
    if(!path.size())
@@ -562,19 +513,15 @@ double Operations::computePathLength(const Path& path, unsigned int start_idx)
    return path_length;
 }
 
-void Operations::drawFilledPolygon(std::weak_ptr<Grid> grid, const Polygon& polygon, const uint8_t pol_value)
+void Operations::drawFilledPolygon(Grid& grid, const Polygon& polygon, const uint8_t pol_value)
 {
-   if(grid.expired())
-      return;
-   std::shared_ptr<Grid> sgrid = grid.lock();
-
    Rect2D rect = getBoundingRect(polygon);
 
-   Pixel p = sgrid->toPixel(rect.p);
-   unsigned int w = std::abs(std::round(rect.w / (double)sgrid->getCellSize()));
-   unsigned int h = std::abs(std::round(rect.h / (double)sgrid->getCellSize()));
+   Pixel p = grid.toPixel(rect.p);
+   unsigned int w = std::abs(std::round(rect.w / (double)grid.getCellSize()));
+   unsigned int h = std::abs(std::round(rect.h / (double)grid.getCellSize()));
 
-   std::vector<uint8_t>& data = sgrid->getData();
+   std::vector<uint8_t>& data = grid.getData();
 
    for(unsigned int y = p.y; y < (p.y + h); ++y)
    {
@@ -583,10 +530,10 @@ void Operations::drawFilledPolygon(std::weak_ptr<Grid> grid, const Polygon& poly
          Pixel tmp;
          tmp.x = x;
          tmp.y = y;
-         unsigned int idx = sgrid->toIdx(tmp);
+         unsigned int idx = grid.toIdx(tmp);
 
          //todo maybe find better way... (prove point in polygon)
-         if(x >= 0 && x < sgrid->getWidth() && y >= 0 && y < sgrid->getHeight() && pointInPolygon(polygon, sgrid->toPoint2D(tmp)))
+         if(x >= 0 && x < grid.getWidth() && y >= 0 && y < grid.getHeight() && pointInPolygon(polygon, grid.toPoint2D(tmp)))
          {
             data[idx] = pol_value;
          }
@@ -728,8 +675,6 @@ Polygon Operations::scale(const Polygon& polygon, double scale_fac)
 
    return scaledPol;
 }
-
-
 
 } /* namespace map */
 } /* namespace rona */

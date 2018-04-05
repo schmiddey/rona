@@ -45,17 +45,15 @@ public:
     * @brief default constructor not used
     */
    GridMap() = delete;
-   //GridMap(const GridMap& grid) = delete;
-   GridMap(const GridMap&& grid) = delete;
 
-
-   /**
-    * @brief Default Copy-Constructor
-    *
-    * @param grid
-    */
+   GridMap(GridMap&& grid) = default;
    GridMap(const GridMap& grid) = default;
 
+  /**
+   * @brief Copy Constructor based on weak_ptr to Gridmap
+   * 
+   * @param map weakptr to Gridmap
+   */
    GridMap(const std::weak_ptr<GridMap> map);
 
 
@@ -83,7 +81,7 @@ public:
     * @param cellSize
     * @param origin
     */
-   GridMap(uint8_t* data, unsigned int width, unsigned int height, double cellSize, Point2D origin);
+  //  GridMap(uint8_t* data, unsigned int width, unsigned int height, double cellSize, Point2D origin);
 
    /**
     * @brief Constuctor for loading GridMap from file
@@ -115,6 +113,10 @@ public:
       _grid = grid.lock();
    }
 
+  void resize(const unsigned int resize)
+  {
+    _grid = Grid::resize(_grid, resize);
+  }
    /**
     * @brief returns shared_ptr of current Grid
     *

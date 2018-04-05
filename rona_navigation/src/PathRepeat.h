@@ -33,41 +33,7 @@ enum class NodeState{
 
 class PathRepeat
 {
-private:    //dataelements
-    ros::NodeHandle _nh;
 
-    ros::Publisher _pubPath;
-    ros::Publisher _pubState;
-    ros::Publisher _pubMoveCtrl;
-    ros::Publisher _pubMarker;
-
-    ros::Subscriber _subSetEndPoint;
-    ros::Subscriber _subStart;
-    ros::Subscriber _subPathControlState;
-
-    ros::ServiceClient _srv_plan;
-    ros::ServiceClient _srv_move_sw_reverse;
-
-    tf::TransformListener _tf_listnener;
-
-    geometry_msgs::Pose _endPose;
-    geometry_msgs::Pose _startPose;
-
-    nav_msgs::Path _path;
-
-
-    NodeState _state;
-    std::string _state_str;
-
-
-    bool _gotNewPose;
-    bool _statePathCtrl_old;
-
-    std::string _mapFrame;
-    std::string _robotFrame;
-
-
-    ros::Timer _loopTimer;
 public:
     PathRepeat();
     virtual ~PathRepeat();
@@ -102,12 +68,43 @@ private:    //functions
 
     void event_arrived();
 
-
     void startMove();
     void swReverseMove();
 
     void pubMarker();
 
+private:    //dataelements
+    ros::NodeHandle _nh;
+
+    ros::Publisher _pubPath;
+    ros::Publisher _pubState;
+    ros::Publisher _pubMoveCtrl;
+    ros::Publisher _pubMarker;
+
+    ros::Subscriber _subSetEndPoint;
+    ros::Subscriber _subStart;
+    ros::Subscriber _subPathControlState;
+
+    ros::ServiceClient _srv_plan;
+    ros::ServiceClient _srv_move_sw_reverse;
+
+    tf::TransformListener _tf_listnener;
+
+    geometry_msgs::Pose _endPose;
+    geometry_msgs::Pose _startPose;
+
+    nav_msgs::Path _path;
+
+    NodeState _state;
+    std::string _state_str;
+
+    bool _gotNewPose;
+    bool _statePathCtrl_old;
+
+    std::string _mapFrame;
+    std::string _robotFrame;
+
+    ros::Timer _loopTimer;
 };
 
 #endif /* PATHREPEAT_H_ */

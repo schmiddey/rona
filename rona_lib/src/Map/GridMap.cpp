@@ -33,11 +33,11 @@ GridMap::GridMap(std::weak_ptr<Grid> grid)
    this->init();
 }
 
-GridMap::GridMap(uint8_t* data, unsigned int width, unsigned int height, double cellSize, Point2D origin)
-{
-   _grid = std::shared_ptr<Grid>(new Grid(data, width, height, cellSize, origin));
-   this->init();
-}
+// GridMap::GridMap(uint8_t* data, unsigned int width, unsigned int height, double cellSize, Point2D origin)
+// {
+//    _grid = std::shared_ptr<Grid>(new Grid(data, width, height, cellSize, origin));
+//    this->init();
+// }
 
 GridMap::GridMap(const std::weak_ptr<GridMap> map)
 {

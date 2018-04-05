@@ -7,7 +7,7 @@
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
   <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
-  <maintainer email="michael.schmidpeter@th-nuernberg.de">m1ch1</maintainer>
+  <maintainer email="m4ffle@googlemail.com">m1ch1</maintainer>
 
 
   <!-- One license tag required, multiple allowed, one license per tag -->
@@ -22,14 +22,17 @@
   <run_depend>rona_launcher</run_depend>
   <run_depend>rona_lib</run_depend>
   <run_depend>rona_msgs</run_depend>
-  <run_depend>sirona</run_depend>
-  <run_depend>murona</run_depend>
-  <run_depend>rona_obstacle</run_depend>
+  <!-- <run_depend>sirona</run_depend>
+  <run_depend>murona</run_depend> -->
+  <run_depend>rona_plan</run_depend>
+  <run_depend>rona_navigation</run_depend>
+  <!-- <run_depend>rona_obstacle</run_depend> -->
   <run_depend>rona_move</run_depend>
   <run_depend>rona_frontier</run_depend>
   <run_depend>rona_exploration</run_depend>
   <run_depend>rona_test</run_depend>
   <run_depend>rona_waypoint</run_depend>
+  <run_depend>rona_trajectory_server</run_depend>
 
 
   <export>

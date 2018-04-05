@@ -34,27 +34,27 @@ class Operations
 public:
    Operations() { }
    virtual ~Operations() { }
-   static void binarize(std::weak_ptr<Grid> grid, uint8_t min, uint8_t max, uint8_t vel_in, uint8_t vel_out);
+   static void binarize(Grid& grid, uint8_t min, uint8_t max, uint8_t vel_in, uint8_t vel_out);
 
-   static void inflateRect(std::weak_ptr<Grid> grid, uint8_t val_min, uint8_t val_max, double offset);
-   static void distnaceTransformRect(std::weak_ptr<Grid> grid, double offset, uint8_t wall_val);
+   static void inflateRect(Grid& grid, uint8_t val_min, uint8_t val_max, double offset);
+   static void distnaceTransformRect(Grid& grid, double offset, uint8_t wall_val);
 
-   static void inflateCirc(std::weak_ptr<Grid> grid, uint8_t val_min, uint8_t val_max, double offset);
-   static void distnaceTransformCirc(std::weak_ptr<Grid> grid, double offset, uint8_t wall_val);
+   static void inflateCirc(Grid& grid, uint8_t val_min, uint8_t val_max, double offset);
+   static void distnaceTransformCirc(Grid& grid, double offset, uint8_t wall_val);
 
-   static void drawFilledCircle(std::weak_ptr<Grid> grid, Point2D circ_center, double radius, uint8_t circ_value);
-   static void overdrawFilledCircle(std::weak_ptr<Grid> grid, Point2D circ_center, double radius, uint8_t circ_value, uint8_t min_draw, uint8_t max_draw);
-   static void drawFilledRect(std::weak_ptr<Grid> grid, Point2D rect_p, double rect_w, double rect_h, uint8_t rect_value);
-   static void overdrawFilledRect(std::weak_ptr<Grid> grid, Point2D rect_p, double rect_w, double rect_h, uint8_t rect_value, uint8_t min_draw, uint8_t max_draw);
+   static void drawFilledCircle(Grid& grid, Point2D circ_center, double radius, uint8_t circ_value);
+   static void overdrawFilledCircle(Grid& grid, Point2D circ_center, double radius, uint8_t circ_value, uint8_t min_draw, uint8_t max_draw);
+   static void drawFilledRect(Grid& grid, Point2D rect_p, double rect_w, double rect_h, uint8_t rect_value);
+   static void overdrawFilledRect(Grid& grid, Point2D rect_p, double rect_w, double rect_h, uint8_t rect_value, uint8_t min_draw, uint8_t max_draw);
 
-   static std::shared_ptr<Grid> diff(std::weak_ptr<Grid> grid_1, std::weak_ptr<Grid> grid_2);
+   static std::shared_ptr<Grid> diff(const Grid& grid_1, const Grid& grid_2);
 
    static double computeDistance(Point2D a, Point2D b);
 
    //check maybe in other class
-   static double computePathLength(const Path& path, unsigned int start_idx = 0);
+   static double computePathLength(const Path& path, const unsigned int start_idx = 0);
 
-   static void drawFilledPolygon(std::weak_ptr<Grid> grid, const Polygon& polygon, const uint8_t pol_value);
+   static void drawFilledPolygon(Grid& grid, const Polygon& polygon, const uint8_t pol_value);
    static bool pointInPolygon(const Polygon& polygon, const Point2D& p);
 
    static Rect2D getBoundingRect(const Polygon& polygon);

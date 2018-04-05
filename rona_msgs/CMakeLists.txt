@@ -58,6 +58,7 @@ add_message_files(
 add_service_files(
    FILES
    PlanPath.srv
+   PlanPathMultiple.srv
    GetFrontierTarget.srv
    NodeCtrlSRV.srv
 #   Service1.srv

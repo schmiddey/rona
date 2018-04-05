@@ -1,5 +1,6 @@
 geometry_msgs/Pose     origin
 geometry_msgs/Pose     target
+int32                scale # between 0.0 and 1.0
 ---
 float64                length
 nav_msgs/Path          path

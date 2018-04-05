@@ -15,7 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   dynamic_reconfigure
 )
 
-SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -O2 -Wall -std=c++11")
+SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -O2 -Wall -std=c++1y")
 
 
 find_package(cmake_modules REQUIRED)
@@ -26,7 +26,7 @@ find_package(Eigen REQUIRED)
 # find_package(Boost REQUIRED COMPONENTS system)
 
 #find opencv package
-#FIND_PACKAGE( OpenCV 3 REQUIRED )
+FIND_PACKAGE( OpenCV 3 REQUIRED )
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -133,7 +133,7 @@ catkin_package(
 # include_directories(include)
 include_directories(
   ${catkin_INCLUDE_DIRS}
-  #${OpenCV_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}
   ${EIGEN_INCLUDE_DIRS}
   include
 )
@@ -164,6 +164,7 @@ add_dependencies(rona_lib ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_
 ## Specify libraries to link a library or executable target against
 target_link_libraries(rona_lib
    ${catkin_LIBRARIES}
+   ${OpenCV_LIBRARIES}
 )
 
 #############
