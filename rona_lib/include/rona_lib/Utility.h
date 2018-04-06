@@ -5,8 +5,8 @@
  *      Author: m1ch1
  */
 
-#ifndef UTILITY_H_
-#define UTILITY_H_
+#ifndef RONA_UTILITY_H_
+#define RONA_UTILITY_H_
 
 #include <iostream>
 #include <cmath>
@@ -374,4 +374,4 @@ private:
 
 }  // namespace rona
 
-#endif /* UTILITY_H_ */
+#endif /* RONA_UTILITY_H_ */

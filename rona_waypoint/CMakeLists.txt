@@ -21,6 +21,8 @@ find_package(catkin REQUIRED COMPONENTS
 
 find_package(cmake_modules REQUIRED)
 find_package(Eigen REQUIRED)
+#find opencv package
+FIND_PACKAGE( OpenCV 3 REQUIRED )
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -127,6 +129,7 @@ catkin_package(
 include_directories(
   ${catkin_INCLUDE_DIRS}
   ${EIGEN_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}
 )
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
@@ -157,10 +160,12 @@ add_dependencies(${PROJECT_NAME}_execute_node ${${PROJECT_NAME}_EXPORTED_TARGETS
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}_click_node
  ${catkin_LIBRARIES}
+ ${OpenCV_LIBRARIES}
 )
 
 target_link_libraries(${PROJECT_NAME}_execute_node
  ${catkin_LIBRARIES}
+ ${OpenCV_LIBRARIES}
 )
 
 #############
