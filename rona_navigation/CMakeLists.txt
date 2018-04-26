@@ -20,7 +20,7 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 find_package(cmake_modules REQUIRED)
-
+FIND_PACKAGE( OpenCV 3 REQUIRED )
 find_package(Eigen REQUIRED)
 
 ## System dependencies are found with CMake's conventions
@@ -128,6 +128,7 @@ catkin_package(
 include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}
   ${EIGEN_INCLUDE_DIRS}
 )
 
@@ -159,6 +160,7 @@ add_dependencies(rona_path_repeat_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${cat
 ## Specify libraries to link a library or executable target against
 target_link_libraries(rona_path_repeat_node
   ${catkin_LIBRARIES}
+  ${OpenCV_LIBRARIES}
 )
 
 #############
