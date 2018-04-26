@@ -162,7 +162,6 @@ std::shared_ptr<rona::map::GridMap> RonaPlanNode::doMapOperations(
   rona::map::Operations::binarize(*grid_map, 0, 10, 0, 255);
   std::shared_ptr<rona::map::Grid> grid_diff_ob = rona::map::Operations::diff(*grid_raw, *grid_map);
   _pubGridOb.publish(grid_diff_ob->toGridCells(200,255,_map_frame));
-
   ///@note dont inflate unknown area
   rona::map::Operations::inflateCirc(*map->getGrid(), 10, 127, _robot_radius);
   rona::map::Operations::binarize(*map->getGrid(), 0, 10, 0, 255);

@@ -15,7 +15,6 @@ Template::Template()
     privNh.param<int>(    "int_val"    ,    int_val   ,   1.0);
     privNh.param<bool>(   "bool_val"   ,    bool_val  ,   true);
 
-
     //init publisher
     _pub = _nh.advertise<std_msgs::Bool>("pub_name",1);
 

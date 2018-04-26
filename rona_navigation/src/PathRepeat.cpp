@@ -62,9 +62,12 @@ void PathRepeat::start(double duration)
 
 void PathRepeat::run()
 {
+
   //do init stuff
 
   //end init stuff
+  ROS_INFO("INIT rdy");
+
 
   ros::spin();
 }
