@@ -322,7 +322,7 @@ void RonaMove::doPathControl()
       ROS_INFO_STREAM("time     : " << time);
 
     }
-    _tf_listnener.lookupTransform(_tf_map_frame, robot_frame, time, tf);
+    _tf_listnener.lookupTransform(_tf_map_frame, robot_frame, ros::Time(0), tf);
 
   }catch(tf::TransformException& e)
   {
