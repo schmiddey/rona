@@ -324,6 +324,9 @@ void RonaMove::doPathControl()
     }
     _tf_listnener.lookupTransform(_tf_map_frame, robot_frame, ros::Time(0), tf);
 
+    ROS_INFO_STREAM("TF Stamp: " << tf.stamp_);
+    ROS_INFO_STREAM("NOW     : " << ros::Time::now());
+
   }catch(tf::TransformException& e)
   {
     ROS_ERROR("rona_move -> Exeption at tf: %s", e.what());
