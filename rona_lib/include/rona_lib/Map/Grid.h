@@ -24,6 +24,7 @@
 #include <ros/ros.h>
 #include <nav_msgs/OccupancyGrid.h>
 #include <nav_msgs/GridCells.h>
+#include <yaml-cpp/yaml.h>
 #endif
 
 //opencv stuff
@@ -97,6 +98,29 @@ public:
     assert(_data.size() == _width * _height);
   }
 
+  /**
+   * @brief loads a map saved my the map_server map_saver (yaml + map)
+   * @param path_to_map_yaml path to map_yaml...
+   */
+  Grid(const std::string& path_to_map_yaml)
+  {
+    YAML::Node map_yml = YAML::LoadFile(path_to_map_yaml);
+    
+    std::string image      = map_yml["image"].as<std::string>();
+    double resolution      = map_yml["resolution"].as<double>();
+    std::string origin     = map_yml["origin"].as<std::string>(); //todo do type
+    double negate          = map_yml["negate"].as<double>();
+    double occupied_thresh = map_yml["occupied_thresh"].as<double>();
+    double free_thresh     = map_yml["free_thresh"].as<double>();
+
+    std::cout << "image: " << image << std::endl;
+    std::cout << "resolution: " << resolution << std::endl;
+    std::cout << "origin: " << origin << std::endl;
+    std::cout << "negate: " << negate << std::endl;
+    std::cout << "occupied_thresh: " << occupied_thresh << std::endl;
+    std::cout << "free_thresh: " << free_thresh << std::endl;
+
+  }
   /**
    * @brief converts grid to nav_msgs::GridCells, only returns pixels which are min_vel <= vel <= max_vel
    * @param min_vel -> min vel of cell which returned;

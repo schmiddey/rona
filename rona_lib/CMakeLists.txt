@@ -22,6 +22,10 @@ find_package(cmake_modules REQUIRED)
 
 find_package(Eigen REQUIRED)
 
+
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(YAML_CPP REQUIRED yaml-cpp)
+
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -165,6 +169,7 @@ add_dependencies(rona_lib ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_
 target_link_libraries(rona_lib
    ${catkin_LIBRARIES}
    ${OpenCV_LIBRARIES}
+   ${YAML_CPP_LIBRARIES}
 )
 
 #############
