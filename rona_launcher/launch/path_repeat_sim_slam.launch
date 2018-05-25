@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <launch>
 	<node name="rona_path_repeat_node" pkg="rona_navigation" type="rona_path_repeat_node">
-		<param name="map_frame"				type="string" value="map"           />
-		<param name="robot_frame"			type="string" value="robot0"/>
-		<param name="start_x"               type="double" value="11.0" />
-		<param name="start_y"               type="double" value="3.5" />	
+		<param name="map_frame"				type="string" value="map_slam"           />
+		<param name="robot_frame"			type="string" value="base_footprint"/>
+		<param name="start_x"               type="double" value="0.0" />
+		<param name="start_y"               type="double" value="0.0" />	
 	</node>
 
 	<node name="rona_move_node" pkg="rona_move" type="rona_move_node">
@@ -13,8 +13,8 @@
       <param name="pub_process_topic"        type="string" value="rona/move/process" />
       <param name="sub_path_topic"           type="string" value="rona/move/path"    />
       <param name="sub_ctrl_topic"           type="string" value="rona/move/ctrl"    />
-      <param name="map_frame"                type="string" value="map"               />
-      <param name="robot_frame"              type="string" value="robot0"    />
+      <param name="map_frame"                type="string" value="map_slam"               />
+      <param name="robot_frame"              type="string" value="base_footprint"    />
       <param name="vel_lin_max"              type="double" value="1.0"               />
       <param name="vel_ang_max"              type="double" value="1.8"               />
       <param name="target_radius"            type="double" value="0.24"              />
@@ -32,16 +32,18 @@
    </node>
 
    <node name="rona_plan_node" pkg="rona_plan" type="rona_plan_node" output="screen">
-      <param name="map_frame"                  type="string" value="map"                       />
-      <param name="robot_frame"                type="string" value="robot0"            />
+      <param name="map_frame"                  type="string" value="map_slam"                       />
+      <param name="robot_frame"                type="string" value="base_footprint"            />
       <param name="robot_radius"               type="double" value="0.35"                      />
       <param name="dt_radius"                  type="double" value="0.2"                       />
       <param name="free_robot_pos_factor"      type="double" value="0.5"                       />
       <param name="map_scale"                  type="double" value= "4"                  />
       <param name="continuous_map_operation"   type="bool"   value= "false" />
+
+      <remap from="map" to="map_slam"/>
    </node>
 
-   <node pkg="tf" type="static_transform_publisher" name="base_footprint_r" 		 args="0 0 0 3.1415 0 0             robot0          base_footprint_r		10"/>
+   <node pkg="tf" type="static_transform_publisher" name="base_footprint_r" 		 args="0 0 0 3.1415 0 0             base_footprint          base_footprint_r		10"/>
 
 
 </launch>
