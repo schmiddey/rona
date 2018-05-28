@@ -24,8 +24,10 @@
 #include <ros/ros.h>
 #include <nav_msgs/OccupancyGrid.h>
 #include <nav_msgs/GridCells.h>
-#include <yaml-cpp/yaml.h>
 #endif
+
+#include <yaml-cpp/yaml.h>
+#include <SDL/SDL_image.h>
 
 //opencv stuff
 #ifdef USE_OPENCV
@@ -132,7 +134,8 @@ public:
     std::cout << "negate: " << negate << std::endl;
     std::cout << "occupied_thresh: " << occupied_thresh << std::endl;
     std::cout << "free_thresh: " << free_thresh << std::endl;
-
+    
+    std::string path_to_map_pgm = image; //TODO do complete path
   //   if(fullPath.find_last_of("/") != std::string::npos)
   //   {
   //     _mapPath = fullPath.substr(0, fullPath.find_last_of("/")+1);
@@ -149,6 +152,16 @@ public:
   //   _mapPath = fullPath;
   //   ROS_INFO_STREAM(_infoStr << "Received SLAM map: " << _mapPath);
   // }
+
+    //load image with SDL
+    SDL_Surface* img;
+    if(!(img = IMG_Load(path_to_map_pgm.c_str())))
+    {
+      std::cout << "ERROR at loading mapg image (pgm), what?: " << IMG_GetError() << std::endl;
+      //TODO empty grid...
+    }
+
+    //init grid
 
   }
   /**

@@ -15,10 +15,14 @@ find_package(catkin REQUIRED COMPONENTS
   tf
 )
 
+FIND_PACKAGE( OpenCV 3 REQUIRED )
+
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(YAML_CPP REQUIRED yaml-cpp)
 
+
 SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -O2 -Wall -std=c++1y")
+
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -125,6 +129,7 @@ catkin_package(
 # include_directories(include)
 include_directories(
   ${catkin_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -153,6 +158,7 @@ target_link_libraries(rona_test_murona_target_node
 target_link_libraries(rona_test_grid_node
  ${catkin_LIBRARIES}
  ${YAML_CPP_LIBRARIES}
+ ${OpenCV_LIBRARIES}
 )
 
 #############
