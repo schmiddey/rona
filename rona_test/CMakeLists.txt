@@ -15,6 +15,11 @@ find_package(catkin REQUIRED COMPONENTS
   tf
 )
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(YAML_CPP REQUIRED yaml-cpp)
+
+SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -O2 -Wall -std=c++1y")
+
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -134,15 +139,21 @@ include_directories(
 
 ## Declare a C++ executable
 add_executable(rona_test_murona_target_node src/MuronaTarget.cpp)
-
+add_executable(rona_test_grid_node src/GridTest.cpp)
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 add_dependencies(rona_test_murona_target_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(rona_test_grid_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
- target_link_libraries(rona_test_murona_target_node
+target_link_libraries(rona_test_murona_target_node
    ${catkin_LIBRARIES}
  )
+
+target_link_libraries(rona_test_grid_node
+ ${catkin_LIBRARIES}
+ ${YAML_CPP_LIBRARIES}
+)
 
 #############
 ## Install ##

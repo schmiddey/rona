@@ -104,21 +104,51 @@ public:
    */
   Grid(const std::string& path_to_map_yaml)
   {
+    // if(path_to_map_yaml.find(".yaml") == std::string::npos)
+    // {
+    //   //TODO init default 
+    //   ROS_INFO("Unable load Yaml file");
+    //   return;
+    // }
+
     YAML::Node map_yml = YAML::LoadFile(path_to_map_yaml);
+    //TODO prove ymal if exist
     
     std::string image      = map_yml["image"].as<std::string>();
     double resolution      = map_yml["resolution"].as<double>();
-    std::string origin     = map_yml["origin"].as<std::string>(); //todo do type
+    auto origin            = map_yml["origin"].as<std::vector<double>>(); //todo do type
     double negate          = map_yml["negate"].as<double>();
     double occupied_thresh = map_yml["occupied_thresh"].as<double>();
     double free_thresh     = map_yml["free_thresh"].as<double>();
 
     std::cout << "image: " << image << std::endl;
     std::cout << "resolution: " << resolution << std::endl;
-    std::cout << "origin: " << origin << std::endl;
+    std::cout << "origin: ";
+    for(auto& e : origin)
+    {
+      std::cout << ", " << e;
+    }
+    std::cout << std::endl;
     std::cout << "negate: " << negate << std::endl;
     std::cout << "occupied_thresh: " << occupied_thresh << std::endl;
     std::cout << "free_thresh: " << free_thresh << std::endl;
+
+  //   if(fullPath.find_last_of("/") != std::string::npos)
+  //   {
+  //     _mapPath = fullPath.substr(0, fullPath.find_last_of("/")+1);
+  //     _mapPath = _mapPath.append(yamlImage);
+  //     ROS_INFO_STREAM(_infoStr << "Received SLAM map via yaml-file: " << _mapPath);
+  //   }
+  //   else
+  //   {
+  //     _mapPath = fullPath;
+  //   }
+  // }
+  // else
+  // {
+  //   _mapPath = fullPath;
+  //   ROS_INFO_STREAM(_infoStr << "Received SLAM map: " << _mapPath);
+  // }
 
   }
   /**
