@@ -12,6 +12,8 @@ GridTest::GridTest()
   privNh.param(         "map_yaml" ,    map_yaml,   std::string("map.yaml"));
   std::cout << "yaml: " << map_yaml << std::endl;
 
+  _sub_map = _nh.subscribe("map", 1, &GridTest::sub_map_callback, this);
+
   _grid = std::make_shared<rona::map::Grid>(map_yaml);
 
   cv::Mat grid_cv = _grid->toCvMat();

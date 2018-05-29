@@ -290,7 +290,8 @@ public:
   {
     cv::cvtColor(img_raw, img, CV_BGR2GRAY);
   }
-
+  //flip image
+  cv::flip(img, img, 0);
   //init grid
   this->init(img.cols, img.rows, resolution, rona::map::Point2D(origin[0], origin[1]));
   _data.resize(img.cols * img.rows);
