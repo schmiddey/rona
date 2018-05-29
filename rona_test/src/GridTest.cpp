@@ -14,6 +14,10 @@ GridTest::GridTest()
 
   _grid = std::make_shared<rona::map::Grid>(map_yaml);
 
+  cv::Mat grid_cv = _grid->toCvMat();
+  cv::imshow("hans2", grid_cv);
+  cv::waitKey(100);
+  cv::imwrite("/tmp/map.png", grid_cv);
   ROS_INFO("Test RDY");
 
 }

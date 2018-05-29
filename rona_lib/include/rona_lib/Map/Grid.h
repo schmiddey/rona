@@ -27,7 +27,7 @@
 #endif
 
 #include <yaml-cpp/yaml.h>
-#include <SDL/SDL_image.h>
+
 
 //opencv stuff
 #ifdef USE_OPENCV
@@ -100,70 +100,9 @@ public:
     assert(_data.size() == _width * _height);
   }
 
-  /**
-   * @brief loads a map saved my the map_server map_saver (yaml + map)
-   * @param path_to_map_yaml path to map_yaml...
-   */
-  Grid(const std::string& path_to_map_yaml)
-  {
-    // if(path_to_map_yaml.find(".yaml") == std::string::npos)
-    // {
-    //   //TODO init default 
-    //   ROS_INFO("Unable load Yaml file");
-    //   return;
-    // }
+  
 
-    YAML::Node map_yml = YAML::LoadFile(path_to_map_yaml);
-    //TODO prove ymal if exist
-    
-    std::string image      = map_yml["image"].as<std::string>();
-    double resolution      = map_yml["resolution"].as<double>();
-    auto origin            = map_yml["origin"].as<std::vector<double>>(); //todo do type
-    double negate          = map_yml["negate"].as<double>();
-    double occupied_thresh = map_yml["occupied_thresh"].as<double>();
-    double free_thresh     = map_yml["free_thresh"].as<double>();
 
-    std::cout << "image: " << image << std::endl;
-    std::cout << "resolution: " << resolution << std::endl;
-    std::cout << "origin: ";
-    for(auto& e : origin)
-    {
-      std::cout << ", " << e;
-    }
-    std::cout << std::endl;
-    std::cout << "negate: " << negate << std::endl;
-    std::cout << "occupied_thresh: " << occupied_thresh << std::endl;
-    std::cout << "free_thresh: " << free_thresh << std::endl;
-    
-    std::string path_to_map_pgm = image; //TODO do complete path
-  //   if(fullPath.find_last_of("/") != std::string::npos)
-  //   {
-  //     _mapPath = fullPath.substr(0, fullPath.find_last_of("/")+1);
-  //     _mapPath = _mapPath.append(yamlImage);
-  //     ROS_INFO_STREAM(_infoStr << "Received SLAM map via yaml-file: " << _mapPath);
-  //   }
-  //   else
-  //   {
-  //     _mapPath = fullPath;
-  //   }
-  // }
-  // else
-  // {
-  //   _mapPath = fullPath;
-  //   ROS_INFO_STREAM(_infoStr << "Received SLAM map: " << _mapPath);
-  // }
-
-    //load image with SDL
-    SDL_Surface* img;
-    if(!(img = IMG_Load(path_to_map_pgm.c_str())))
-    {
-      std::cout << "ERROR at loading mapg image (pgm), what?: " << IMG_GetError() << std::endl;
-      //TODO empty grid...
-    }
-
-    //init grid
-
-  }
   /**
    * @brief converts grid to nav_msgs::GridCells, only returns pixels which are min_vel <= vel <= max_vel
    * @param min_vel -> min vel of cell which returned;
@@ -290,6 +229,79 @@ public:
      tmp_img.copyTo(ret);
      return ret;
   }
+
+  /**
+   * @brief loads a map saved my the map_server map_saver (yaml + map)
+   * @param path_to_map_yaml path to map_yaml...
+   * @param map_format -> not used 
+   */
+  Grid(const std::string& path_to_map_yaml, const bool map_format = false)
+  {
+  // if(path_to_map_yaml.find(".yaml") == std::string::npos)
+  // {
+  //   //TODO init default 
+  //   ROS_INFO("Unable load Yaml file");
+  //   return;
+  // }
+
+   YAML::Node map_yml = YAML::LoadFile(path_to_map_yaml);
+   //TODO prove ymal if exist
+    
+  std::string image      = map_yml["image"].as<std::string>();
+  double resolution      = map_yml["resolution"].as<double>();
+  auto origin            = map_yml["origin"].as<std::vector<double>>();
+  double negate          = map_yml["negate"].as<double>();
+  double occupied_thresh = map_yml["occupied_thresh"].as<double>();
+  double free_thresh     = map_yml["free_thresh"].as<double>();
+
+  std::cout << "image: " << image << std::endl;
+  std::cout << "resolution: " << resolution << std::endl;
+  std::cout << "origin: ";
+  for(auto& e : origin)
+  {
+    std::cout << ", " << e;
+  }
+  std::cout << std::endl;
+  std::cout << "negate: " << negate << std::endl;
+  std::cout << "occupied_thresh: " << occupied_thresh << std::endl;
+  std::cout << "free_thresh: " << free_thresh << std::endl;
+    
+  assert(origin.size() >= 2);
+
+  std::string path_to_map_pgm = image; 
+  if(path_to_map_yaml.find_last_of("/") != std::string::npos)
+  {
+    std::string path = path_to_map_yaml.substr(0, path_to_map_yaml.find_last_of("/")+1);
+    path_to_map_pgm = path + path_to_map_pgm;
+  }
+  std::cout << "path to map: " << path_to_map_pgm << std::endl;
+
+  // load image with SDL
+  // SDL_Surface* img;
+  // if(!(img = IMG_Load(path_to_map_pgm.c_str())))
+  // {
+  //   std::cout << "ERROR at loading mapg image (pgm), what?: " << IMG_GetError() << std::endl;
+  //   //TODO empty grid...
+  // }
+
+  cv::Mat img_raw = cv::imread(path_to_map_pgm);
+  cv::Mat img;
+  if(img_raw.channels() == 3)
+  {
+    cv::cvtColor(img_raw, img, CV_BGR2GRAY);
+  }
+
+  //init grid
+  this->init(img.cols, img.rows, resolution, rona::map::Point2D(origin[0], origin[1]));
+  _data.resize(img.cols * img.rows);
+
+  //fill pixel  //todo add sedond mmode for correct representing map pixel values -> currently only for visualization
+  unsigned char* pixels = (unsigned char*)img.data;
+  for(unsigned int i = 0; i < img.cols * img.rows; i++)
+  {
+    _data[i] = pixels[i];
+  }
+}
 #endif
 
   /**

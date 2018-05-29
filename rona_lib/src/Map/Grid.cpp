@@ -7,6 +7,8 @@
 
 #include <rona_lib/Map/Grid.h>
 
+
+
 namespace rona
 {
 namespace map
@@ -26,6 +28,7 @@ Grid::Grid(const std::weak_ptr<Grid> grid)
    _data = sg->getData();
 }
 
+// Grid::Grid(const std::string& path_to_map_yaml, const bool map_format)
 
 Grid::~Grid()
 { }

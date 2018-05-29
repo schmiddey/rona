@@ -22,6 +22,9 @@ find_package(cmake_modules REQUIRED)
 
 find_package(Eigen REQUIRED)
 
+find_package(SDL REQUIRED)
+
+find_package(SDL_image REQUIRED)
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(YAML_CPP REQUIRED yaml-cpp)
@@ -170,6 +173,8 @@ target_link_libraries(rona_lib
    ${catkin_LIBRARIES}
    ${OpenCV_LIBRARIES}
    ${YAML_CPP_LIBRARIES}
+   ${SDL_LIBRARY}
+   ${SDL_IMAGE_LIBRARIES}
 )
 
 #############

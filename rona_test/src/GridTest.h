@@ -33,7 +33,6 @@ public:
      * @return  void
      */
     void start(const double duration = 0.1);
-
 private:    //functions
 
    /**
