@@ -1,5 +1,5 @@
-#ifndef WAYPOINTHANDLER_H_
-#define WAYPOINTHANDLER_H_
+#ifndef RONA_WAYPOINTHANDLER_H_
+#define RONA_WAYPOINTHANDLER_H_
 
 #include <ros/ros.h>
 #include <geometry_msgs/PointStamped.h>
@@ -287,4 +287,4 @@ private:
 };
 
 
-#endif /* WAYPOINTHANDLER_H_ */
+#endif /* RONA_WAYPOINTHANDLER_H_ */

@@ -32,7 +32,8 @@ RonaWPClickNode::RonaWPClickNode()
     _sub_estimate_pose = _nh.subscribe("/initialpose", 1, &RonaWPClickNode::sub_estimate_pose_callback, this);
     _sub_nav_goal      = _nh.subscribe("/move_base_simple/goal", 1, &RonaWPClickNode::sub_nav_goal_callback, this);
 
-    _srv_save          = _nh.advertiseService("rona/waypoint/save_waypoints", &RonaWPClickNode::srv_save_wp_callback, this);
+    _srv_save             = _nh.advertiseService("rona/waypoint/save_waypoints", &RonaWPClickNode::srv_save_wp_callback, this);
+    _srv_set_curr_tf_pose = _nh.advertiseService("rona/waypoint/tf_wp", &RonaWPClickNode::srv_set_curr_tf_pose_callback, this);
 
     _srv_plan_path     = _nh.serviceClient<rona_msgs::PlanPath>("todo");
 
@@ -73,11 +74,11 @@ void RonaWPClickNode::run()
    if(_cfg.save_at_exit)
    {
      //compute path from last wp to first wp...
-     auto path = this->compute_direct_path(_wp_handler.back().first.position, _wp_handler.front().first.position);
+     auto path = this->compute_direct_path(_wp_handler.back().first.position, _wp_handler.front().first.position, _orientation);
      _wp_handler.front().second = path.second;
      std::cout << "Save Waypoints at exit... wait 2 sec then exit..." << std::endl;
      _wp_handler.serialize(_cfg.wp_file_save);
-     this->publish_waypoints();
+    //  this->publish_waypoints();
      ::usleep(2000000);
    }
 
@@ -130,7 +131,7 @@ void RonaWPClickNode::sub_clicked_point_callback(const geometry_msgs::PointStamp
     this->publish_waypoints();
     return;
   }
-  auto d_path = this->compute_direct_path(_wp_handler.back().first.position, pose.position);
+  auto d_path = this->compute_direct_path(_wp_handler.back().first.position, pose.position, _orientation);
   if(d_path.first)
   {//is occupied
     //todo compute path with sirona plan...
@@ -167,13 +168,19 @@ void RonaWPClickNode::sub_nav_goal_callback(const geometry_msgs::PoseStamped& po
 bool RonaWPClickNode::srv_save_wp_callback(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res)
 {
   //compute path from last wp to first wp...
-  auto path = this->compute_direct_path(_wp_handler.back().first.position, _wp_handler.front().first.position);
+  auto path = this->compute_direct_path(_wp_handler.back().first.position, _wp_handler.front().first.position, _orientation);
   _wp_handler.front().second = path.second;
   _wp_handler.serialize(_cfg.wp_file_save);
   return true;
 }
 
-std::pair<bool, nav_msgs::Path> RonaWPClickNode::compute_direct_path(const geometry_msgs::Point& start, const geometry_msgs::Point& end)
+bool RonaWPClickNode::srv_set_curr_tf_pose_callback(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res)
+{
+  auto hans = rona::Utility::getTransform(_tf_listener, "", "");
+  return true;
+}
+
+std::pair<bool, nav_msgs::Path> RonaWPClickNode::compute_direct_path(const geometry_msgs::Point& start, const geometry_msgs::Point& end, const geometry_msgs::Quaternion& ori)
 {
   auto ros_time = ros::Time::now();
   nav_msgs::Path path;
@@ -195,7 +202,7 @@ std::pair<bool, nav_msgs::Path> RonaWPClickNode::compute_direct_path(const geome
   p.header.frame_id = _cfg.frame_id;
   p.header.stamp    = ros_time;
   //todo do custom ori may be in line with path ...
-  p.pose.orientation = _orientation;
+  p.pose.orientation = ori;
 
   //push first wp
   p.pose.position = start;

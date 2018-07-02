@@ -8,6 +8,7 @@
 #include <nav_msgs/Path.h>
 #include <visualization_msgs/MarkerArray.h>
 #include <tf/tf.h>
+#include <tf/transform_listener.h>
 #include <std_srvs/Empty.h>
 
 #include <rona_msgs/PlanPath.h>
@@ -15,6 +16,7 @@
 #include "WayPointHandler.h"
 
 #include <rona_lib/marker/MarkerUtility.h>
+#include <rona_lib/Utility.h>
 
 namespace cfg{
 
@@ -62,6 +64,8 @@ private:    //functions
     void publish_waypoints();
 
     void loop_callback(const ros::TimerEvent& e);
+    
+    void add_waypoint();
 
     //void subCallback(const ROS_PACK::MESSAGE& msg);
     void sub_clicked_point_callback(const geometry_msgs::PointStamped& p);
@@ -73,7 +77,9 @@ private:    //functions
 
     bool srv_save_wp_callback(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res);
 
-    std::pair<bool, nav_msgs::Path> compute_direct_path(const geometry_msgs::Point& start, const geometry_msgs::Point& end);
+    bool srv_set_curr_tf_pose_callback(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res);
+
+    std::pair<bool, nav_msgs::Path> compute_direct_path(const geometry_msgs::Point& start, const geometry_msgs::Point& end, const geometry_msgs::Quaternion& ori);
 
     //compute path via sirona via service....
     nav_msgs::Path compute_path(const geometry_msgs::Point& start, const geometry_msgs::Point& end);
@@ -91,10 +97,15 @@ private:    //dataelements
     ros::Subscriber _sub_nav_goal;
 
     ros::ServiceServer _srv_save;
+    ros::ServiceServer _srv_set_curr_tf_pose;
 
     ros::ServiceClient _srv_plan_path;
 
     ros::Timer _loopTimer;
+
+    tf::TransformListener _tf_listener;
+    std::string _map_frame;
+    std::string _robot_frame;
 
     WayPointHandler _wp_handler;
 
