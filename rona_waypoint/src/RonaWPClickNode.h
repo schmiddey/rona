@@ -65,7 +65,7 @@ private:    //functions
 
     void loop_callback(const ros::TimerEvent& e);
     
-    void add_waypoint();
+    void add_waypoint(const geometry_msgs::Pose& p);
 
     //void subCallback(const ROS_PACK::MESSAGE& msg);
     void sub_clicked_point_callback(const geometry_msgs::PointStamped& p);
@@ -79,7 +79,7 @@ private:    //functions
 
     bool srv_set_curr_tf_pose_callback(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res);
 
-    std::pair<bool, nav_msgs::Path> compute_direct_path(const geometry_msgs::Point& start, const geometry_msgs::Point& end, const geometry_msgs::Quaternion& ori);
+    // std::pair<bool, nav_msgs::Path> compute_direct_path(const geometry_msgs::Point& start, const geometry_msgs::Point& end, const geometry_msgs::Quaternion& ori);
 
     //compute path via sirona via service....
     nav_msgs::Path compute_path(const geometry_msgs::Point& start, const geometry_msgs::Point& end);

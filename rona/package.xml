@@ -27,6 +27,7 @@
   <run_depend>rona_move</run_depend>
   <run_depend>rona_frontier</run_depend>
   <run_depend>rona_exploration</run_depend>
+  <run_depend>rona_waypoint</run_depend>
   <!-- <run_depend>rona_test</run_depend> -->
   <!-- <run_depend>rona_waypoint</run_depend> -->
   <!-- <run_depend>rona_trajectory_server</run_depend> -->

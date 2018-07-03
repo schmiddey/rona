@@ -14,6 +14,61 @@
 #include <string>
 #include <sstream>
 
+class WayPointHelper
+{
+public:
+  static std::pair<bool, nav_msgs::Path> compute_direct_path(const geometry_msgs::Point& start, 
+                                                             const geometry_msgs::Point& end, 
+                                                             const geometry_msgs::Quaternion& ori,
+                                                             const double step_length,
+                                                             const std::string frame_id = "map")
+  {
+    auto ros_time = ros::Time::now();
+    nav_msgs::Path path;
+    path.header.frame_id = frame_id;
+    path.header.stamp    = ros_time;
+    bool occupied = false;
+
+
+    tf::Vector3 st(start.x, start.y, 0.0);
+    tf::Vector3 en(end.x, end.y, 0.0);
+
+    double dist = st.distance(en);
+
+    tf::Vector3 v_step = ((en - st).normalize()) * step_length;
+
+    unsigned int steps = dist / step_length;
+
+    geometry_msgs::PoseStamped p;
+    p.header.frame_id = frame_id;
+    p.header.stamp    = ros_time;
+    //todo do custom ori may be in line with path ...
+    p.pose.orientation = ori;
+
+    //push first wp
+    p.pose.position = start;
+    path.poses.push_back(p);
+
+    for(unsigned int i=1; i<steps; ++i)
+    {
+      //todo prove if occupied
+      st += v_step;
+
+      p.pose.position.x = st.x();
+      p.pose.position.y = st.y();
+      p.pose.position.z = 0.0;
+  
+      path.poses.push_back(p);
+    }  
+
+    //push endpoint
+    p.pose.position = end;
+    path.poses.push_back(p);
+
+    return std::make_pair(occupied, path);
+  }
+};
+
 using waypoint_t  = std::pair<geometry_msgs::Pose, nav_msgs::Path>;
 using waypoints_t = std::vector<waypoint_t>;
 
@@ -91,6 +146,31 @@ public:
   inline nav_msgs::Path getPathComplete()
   {
     return this->getPath(0,this->size() - 1);
+  }
+
+  int getLastWaypointID() const
+  {
+    return _waypoints.size() -1;
+  }
+
+  inline void flip(const double step_length)
+  {
+    if(_waypoints.size() < 2)
+      return;
+
+    std::string frame_id = _waypoints[0].second.header.frame_id;
+    //flip poses except start pose
+    std::reverse(_waypoints.begin() + 1, _waypoints.end());
+
+    //recompute direct path... //there is maybe a smarter way :)
+    for(unsigned int i = 1; i < _waypoints.size(); i++)
+    {
+      //maybe bug wrong way but not important in streight line bug not good...
+      auto path = WayPointHelper::compute_direct_path(_waypoints[i-1].first.position, _waypoints[i].first.position, _waypoints[i].first.orientation, step_length, frame_id);
+      _waypoints[i].second = path.second;
+    }
+    auto path = WayPointHelper::compute_direct_path(_waypoints.back().first.position, _waypoints.front().first.position, _waypoints.front().first.orientation, step_length, frame_id);
+    _waypoints.front().second = path.second;
   }
 
   inline bool serialize(const std::string& file) const
