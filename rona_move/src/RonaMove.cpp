@@ -315,6 +315,10 @@ void RonaMove::doPathControl()
   }catch(tf::TransformException& e)
   {
     ROS_ERROR("rona_move -> Exeption at tf: %s", e.what());
+    geometry_msgs::Twist msgTwist;
+    msgTwist.angular.z = 0;
+    msgTwist.linear.x = 0;
+    _pub_cmd_vel.publish(msgTwist);
     return;
   }
 
