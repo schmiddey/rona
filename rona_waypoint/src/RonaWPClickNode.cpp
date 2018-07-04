@@ -122,6 +122,8 @@ void RonaWPClickNode::add_waypoint(const geometry_msgs::Pose& p)
   // ROS_INFO_STREAM("got Point: " << str_pose);
 
   // ROS_INFO_STREAM("from string to Pose: " << _wp_handler.string2pose(str_pose));
+  
+  ROS_INFO_STREAM("Add Waypoint... ID: " << _wp_handler.size());
 
   if(_wp_handler.empty())
   {

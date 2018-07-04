@@ -11,7 +11,8 @@
 
 #include <rona_lib/Map/Operations.h>
 
-#include "WayPointHandler.h"
+// #include "WayPointHandler.h"
+#include <rona_lib/waypoint/WayPointHandler.h>
 
 #include <string>
 

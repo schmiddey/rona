@@ -13,7 +13,7 @@
 
 #include <rona_msgs/PlanPath.h>
 
-#include "WayPointHandler.h"
+#include <rona_lib/waypoint/WayPointHandler.h>
 
 #include <rona_lib/marker/MarkerUtility.h>
 #include <rona_lib/Utility.h>
