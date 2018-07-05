@@ -53,6 +53,13 @@ public:
 
       return vel;
    }
+  
+  
+  virtual void setMaxVel(const double linear, const double angular)
+  {
+    _max_vel_lin = linear;
+    _max_vel_ang = angular;
+  }
 
 private: //functions
    double lin(const double scale, const double value, const double max_value)

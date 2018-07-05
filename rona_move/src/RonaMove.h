@@ -176,6 +176,9 @@ private:
 
   double _tf_stamp_offset;
   bool _use_tf_stamp_offset;
+
+  double _max_vel_lin;
+  double _max_vel_ang;
 };
 
 #endif /* TEMPLATE_H_ */

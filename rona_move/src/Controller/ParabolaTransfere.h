@@ -32,6 +32,12 @@ public:
 
    virtual controller::velocity control(const double linear_x, const double linear_y, const double angular);
 
+  virtual void setMaxVel(const double linear, const double angular)
+  {
+    _max_vel_lin = linear;
+    _max_vel_ang = angular;
+  }
+
 private: //functions
    double parabola(const double scale, const double value, const double max_vale);
 

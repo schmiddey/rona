@@ -25,6 +25,8 @@ public:
 
    virtual controller::velocity control(const double linear_x, const double linear_y, const double angular) = 0;
 
+   virtual void setMaxVel(const double linear, const double angular) = 0;
+
 };
 
 } /* namespace controller */

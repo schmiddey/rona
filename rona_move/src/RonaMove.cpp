@@ -96,7 +96,8 @@ RonaMove::RonaMove()
   privNh.param<double>("cos_fac_n"            ,   cos_fac_n              , 3.0  );
   privNh.param<bool>  ("do_endrotate"         ,   do_endrotate           , false);
 
-
+  _max_vel_lin = vel_lin_max;
+  _max_vel_ang = vel_ang_max;
 
   _tf_map_frame = tf_map_frame;
   _tf_robot_frame = tf_robot_frame;
@@ -516,7 +517,12 @@ void RonaMove::subCtrl_callback(const rona_msgs::NodeCtrl& msg)
 
 void RonaMove::subVelScale_callback(const std_msgs::Float64& msg)
 {
-  //TODO
+  double scale = std::abs(msg.data);
+  if(scale > 1.0)
+  {
+    scale = 1.0;
+  }
+  _controller->setMaxVel(_max_vel_lin * scale, _max_vel_ang * scale);
 }
 
 bool RonaMove::srvNodeCtrl_callback(rona_msgs::NodeCtrlSRVRequest& req, rona_msgs::NodeCtrlSRVResponse& res)

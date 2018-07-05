@@ -81,6 +81,11 @@ public:
 
      return vel;
    }
+  virtual void setMaxVel(const double linear, const double angular)
+  {
+    _max_vel_lin = linear;
+    _max_vel_ang = angular;  
+  }
 
 private: //functions
    inline double transfere_fcn(const double scale, const double value, const double max_val, const double slope)
