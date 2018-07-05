@@ -47,7 +47,9 @@ public:
 
 
       vel.angular = std::abs(ang) > _max_vel_ang ? _max_vel_ang * sng : ang;
-      vel.linear = this->lin(_lin_fac, linear_x, _max_vel_lin);
+      vel.linear_x = this->lin(_lin_fac, linear_x, _max_vel_lin);
+      vel.linear_y = this->lin(_lin_fac, linear_y, _max_vel_lin);
+      
       _ang_err_old = angular;
       _ang_vel_old = ang;
 
