@@ -49,6 +49,8 @@ RonaMove::RonaMove()
   double ang_ctrl_scale      ;
   double robot_radius        ;
   double wait_for_rotation   ;
+  double lin_slope           ;
+  double ang_slope           ;
   double tf_stamp_offset     ;
   double path_truncate       ;
 
@@ -86,6 +88,8 @@ RonaMove::RonaMove()
   //mecanum
   privNh.param<bool>  ("hold_pos"             ,   hold_pos               , true );
   privNh.param<double>("wait_for_rotation"    ,   wait_for_rotation      , 4.0  );
+  privNh.param<double>("lin_slope"            ,   lin_slope              , 1.0  );
+  privNh.param<double>("ang_slope"            ,   ang_slope              , 1.0  );
 
   //differential
   privNh.param<int>   ("cos_pwr_n"            ,   cos_pwr_n              , 4    );
@@ -129,6 +133,7 @@ RonaMove::RonaMove()
   _sub_path = _nh.subscribe(sub_name_path , 10, &RonaMove::subPath_callback, this);
   _sub_ctrl = _nh.subscribe(sub_ctrl_topic, 1000, &RonaMove::subCtrl_callback, this);
   _sub_pause = _nh.subscribe("rona/move/pause", 1, &RonaMove::subPause_callback, this);
+  _sub_vel_scale = _nh.subscribe("rona/move/vel_scale", 1, &RonaMove::subVelScale_callback, this);
 
   _srv_node_ctrl   = _nh.advertiseService("/rona/move/node_ctrl", &RonaMove::srvNodeCtrl_callback, this);
   _srv_reverse_on  = _nh.advertiseService("/rona/move/set_reverse_on", &RonaMove::srvReverseOn_callback, this);
@@ -163,7 +168,7 @@ RonaMove::RonaMove()
 //    cfg.hold_pos              = hold_pos;
     _pathAnalyser = std::make_unique<analyser::MecanumAnalyser>(cfg);
     //_controller = std::make_unique<controller::ParabolaTransfere>(vel_lin_max, vel_ang_max, lin_ctrl_scale, ang_ctrl_scale);
-    _controller   = std::make_unique<controller::LinPwrTransfere>(vel_lin_max, vel_ang_max, lin_ctrl_scale, ang_ctrl_scale);
+    _controller   = std::make_unique<controller::LinPwrTransfere>(vel_lin_max, vel_ang_max, lin_ctrl_scale, ang_ctrl_scale, lin_slope, ang_slope);
   }
   else
   {
@@ -318,14 +323,14 @@ void RonaMove::doPathControl()
       else
         time = ros::Time::now() + ros::Duration(std::abs(_tf_stamp_offset));
 
-      ROS_INFO_STREAM("Time::now: " << ros::Time::now());
-      ROS_INFO_STREAM("time     : " << time);
+      // ROS_INFO_STREAM("Time::now: " << ros::Time::now());
+      // ROS_INFO_STREAM("time     : " << time);
 
     }
     _tf_listnener.lookupTransform(_tf_map_frame, robot_frame, ros::Time(0), tf);
 
-    ROS_INFO_STREAM("TF Stamp: " << tf.stamp_);
-    ROS_INFO_STREAM("NOW     : " << ros::Time::now());
+    // ROS_INFO_STREAM("TF Stamp: " << tf.stamp_);
+    // ROS_INFO_STREAM("NOW     : " << ros::Time::now());
 
   }catch(tf::TransformException& e)
   {
@@ -337,11 +342,6 @@ void RonaMove::doPathControl()
     return;
   }
 
-
-
-
-
-
   analyser::pose pose;
   pose.position = Vector3d(tf.getOrigin().x(), tf.getOrigin().y(), 0);
 
@@ -351,18 +351,18 @@ void RonaMove::doPathControl()
   //get diff scale
   analyser::diff_scale diff_scale = _pathAnalyser->analyse(pose);
 
-//  std::cout << "analyse: " << std::endl;
-//  std::cout << "ang   : " << diff_scale.angular << std::endl;
-//  std::cout << "lin_x : " << diff_scale.linear_x << std::endl;
-//  std::cout << "lin_y : " << diff_scale.linear_y << std::endl;
+ std::cout << "analyse: " << std::endl;
+ std::cout << "ang   : " << diff_scale.angular << std::endl;
+ std::cout << "lin_x : " << diff_scale.linear_x << std::endl;
+ std::cout << "lin_y : " << diff_scale.linear_y << std::endl;
 
   //controll diffscale
   controller::velocity vel = _controller->control(diff_scale.linear_x, diff_scale.linear_y, diff_scale.angular);
 
-//  std::cout << "control: " << std::endl;
-//  std::cout << "ang   : " << vel.angular << std::endl;
-//  std::cout << "lin_x : " << vel.linear_x << std::endl;
-//  std::cout << "lin_y : " << vel.linear_y << std::endl;
+ std::cout << "control: " << std::endl;
+ std::cout << "ang   : " << vel.angular << std::endl;
+ std::cout << "lin_x : " << vel.linear_x << std::endl;
+ std::cout << "lin_y : " << vel.linear_y << std::endl;
 
 
 
@@ -512,6 +512,11 @@ void RonaMove::subPause_callback(const std_msgs::Bool& msg)
 void RonaMove::subCtrl_callback(const rona_msgs::NodeCtrl& msg)
 {
   this->processNodeCtrl(msg);
+}
+
+void RonaMove::subVelScale_callback(const std_msgs::Float64& msg)
+{
+  //TODO
 }
 
 bool RonaMove::srvNodeCtrl_callback(rona_msgs::NodeCtrlSRVRequest& req, rona_msgs::NodeCtrlSRVResponse& res)

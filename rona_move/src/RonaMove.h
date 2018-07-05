@@ -10,6 +10,7 @@
 #include <std_msgs/Bool.h>
 #include <std_msgs/UInt32.h>
 #include <tf/transform_listener.h>
+#include <std_msgs/Float64.h>
 #include <std_srvs/Empty.h>
 
 #include <rona_msgs/NodeCtrlSRV.h>
@@ -101,6 +102,7 @@ private:  //functions
    */
   void subPause_callback(const std_msgs::Bool& msg);
 
+  void subVelScale_callback(const std_msgs::Float64& msg);
   /**
    *
    * @param msg
@@ -128,6 +130,7 @@ private:
   ros::Subscriber _sub_path;
   ros::Subscriber _sub_pause;
   ros::Subscriber _sub_ctrl;
+  ros::Subscriber _sub_vel_scale;
   
   ros::ServiceServer _srv_node_ctrl;
   ros::ServiceServer _srv_reverse_on;

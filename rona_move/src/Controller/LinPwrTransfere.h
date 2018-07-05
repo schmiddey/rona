@@ -27,12 +27,16 @@ public:
          double max_vel_lin,
          double max_vel_ang,
          double pwr_ratio_lin_fac,    //value between 0..1 -> 0 lin -> 0.5 lin + pwr  -> 1.0 only pwr
-         double pwr_ratio_ang_fac) :  //value between 0..1 -> 0 lin -> 0.5 lin + pwr  -> 1.0 only pwr
+         double pwr_ratio_ang_fac,    //value between 0..1 -> 0 lin -> 0.5 lin + pwr  -> 1.0 only pwr
+         double lin_slope = 1.0,
+         double ang_slope = 1.0
+         ) :
     _max_vel_lin      (max_vel_lin      ),
     _max_vel_ang      (max_vel_ang      ),
     _pwr_ratio_lin_fac(pwr_ratio_lin_fac),
-    _pwr_ratio_ang_fac(pwr_ratio_ang_fac)
-
+    _pwr_ratio_ang_fac(pwr_ratio_ang_fac),
+    _lin_slope        (std::abs(lin_slope)),
+    _ang_slope        (std::abs(ang_slope))
   {
     //prove max values...
     _max_vel_ang = std::abs(_max_vel_ang);
@@ -48,7 +52,7 @@ public:
    {
      controller::velocity vel;
 
-     vel.angular  = this->transfere_fcn(_pwr_ratio_ang_fac, angular , _max_vel_ang);
+     vel.angular  = this->transfere_fcn(_pwr_ratio_ang_fac, angular , _max_vel_ang, _ang_slope);
 
      Eigen::Vector3d lin(linear_x, linear_y, 0.0);
      double norm = lin.norm();
@@ -58,7 +62,7 @@ public:
 //
 //     std::cout << "norm1: " << norm << std::endl;
 
-     norm = this->transfere_fcn(_pwr_ratio_lin_fac, norm, _max_vel_lin);
+     norm = this->transfere_fcn(_pwr_ratio_lin_fac, norm, _max_vel_lin, _lin_slope);
 //     vel.linear_y = this->transfere_fcn(_pwr_ratio_lin_fac, linear_y, _max_vel_lin);
 
      if(lin.norm() > 0.0)
@@ -79,9 +83,9 @@ public:
    }
 
 private: //functions
-   inline double transfere_fcn(const double scale, const double value, const double max_val)
+   inline double transfere_fcn(const double scale, const double value, const double max_val, const double slope)
    {
-     double ret = (1 - scale) * std::abs(value) + ((1-(1-scale)) * std::pow(std::abs(value), _pwr));
+     double ret = (1 - scale) * slope * std::abs(value) + ((1-(1-scale)) * std::pow(std::abs(value), _pwr));
 
      int sgn = (value > 0) - (value < 0);
 
@@ -105,6 +109,8 @@ private: //dataelements
    double _max_vel_ang      ;
    double _pwr_ratio_lin_fac;
    double _pwr_ratio_ang_fac;
+   double _lin_slope;
+   double _ang_slope;
 
    int _pwr = 10;
 };
