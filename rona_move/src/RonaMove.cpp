@@ -137,11 +137,11 @@ RonaMove::RonaMove()
   _sub_pause = _nh.subscribe("rona/move/pause", 1, &RonaMove::subPause_callback, this);
   _sub_vel_scale = _nh.subscribe("rona/move/vel_scale", 1, &RonaMove::subVelScale_callback, this);
 
-  _srv_node_ctrl   = _nh.advertiseService("/rona/move/node_ctrl", &RonaMove::srvNodeCtrl_callback, this);
-  _srv_reverse_on  = _nh.advertiseService("/rona/move/set_reverse_on", &RonaMove::srvReverseOn_callback, this);
-  _srv_reverse_off = _nh.advertiseService("/rona/move/set_reverse_off", &RonaMove::srvReverseOff_callback, this);
-  _srv_reverse_sw  = _nh.advertiseService("/rona/move/set_reverse_sw", &RonaMove::srvReverseSw_callback, this);
-
+  _srv_node_ctrl    = _nh.advertiseService("/rona/move/node_ctrl",       &RonaMove::srvNodeCtrl_callback, this);
+  _srv_reverse_on   = _nh.advertiseService("/rona/move/set_reverse_on",  &RonaMove::srvReverseOn_callback, this);
+  _srv_reverse_off  = _nh.advertiseService("/rona/move/set_reverse_off", &RonaMove::srvReverseOff_callback, this);
+  _srv_reverse_sw   = _nh.advertiseService("/rona/move/set_reverse_sw",  &RonaMove::srvReverseSw_callback, this);
+  _srv_set_pos_hold = _nh.advertiseService("/rona/move/set_pos_hold",    &RonaMove::srvSetPosHold_callback, this);
 
   if(kinematic == "differential")
   {
@@ -553,6 +553,15 @@ bool RonaMove::srvReverseSw_callback(std_srvs::EmptyRequest& req, std_srvs::Empt
   ROS_INFO("RonaMove -> sw reverseMode caled -> after state: %s", _reverseMode ? "true" : "false");
   return true;
 }
+
+bool RonaMove::srvSetPosHold_callback(std_srvs::SetBool::Request& req, std_srvs::SetBool::Response& res)
+{
+  _hold_pos = req.data;
+
+  res.success = true;
+  res.message = "TRUE";
+  return true;
+} 
 
 bool RonaMove::processNodeCtrl(const rona_msgs::NodeCtrl& msg)
 {

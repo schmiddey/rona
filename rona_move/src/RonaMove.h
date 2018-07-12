@@ -12,6 +12,7 @@
 #include <tf/transform_listener.h>
 #include <std_msgs/Float64.h>
 #include <std_srvs/Empty.h>
+#include <std_srvs/SetBool.h>
 
 #include <rona_msgs/NodeCtrlSRV.h>
 #include <rona_msgs/NodeCtrl.h>
@@ -113,7 +114,7 @@ private:  //functions
   bool srvReverseOn_callback(std_srvs::EmptyRequest& req, std_srvs::EmptyResponse& res);
   bool srvReverseOff_callback(std_srvs::EmptyRequest& req, std_srvs::EmptyResponse& res);
   bool srvReverseSw_callback(std_srvs::EmptyRequest& req, std_srvs::EmptyResponse& res);
-
+  bool srvSetPosHold_callback(std_srvs::SetBool::Request& req, std_srvs::SetBool::Response& res);
 
   bool processNodeCtrl(const rona_msgs::NodeCtrl& msg);
 
@@ -136,6 +137,7 @@ private:
   ros::ServiceServer _srv_reverse_on;
   ros::ServiceServer _srv_reverse_off;
   ros::ServiceServer _srv_reverse_sw;
+  ros::ServiceServer _srv_set_pos_hold;
 
   ros::Timer _loopTimer;
 
