@@ -244,6 +244,7 @@ void RonaMove::pubState()
 //      }
 //      else
     {  //arrived:
+
       if(_hold_pos)
       {
         _state = State::HOLD_POS;   //holding pos by control to end pos continuously
@@ -560,6 +561,8 @@ bool RonaMove::srvSetPosHold_callback(std_srvs::SetBool::Request& req, std_srvs:
 
   res.success = true;
   res.message = "TRUE";
+
+  ROS_ERROR_STREAM("Got SetPosHold Srv : " << req.data);
   return true;
 } 
 
