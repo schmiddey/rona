@@ -32,6 +32,8 @@
 #include "PathAnalyser/PathAnalyser_base.h"
 #include "Controller/Controller_base.h"
 
+#include "AccRamp/AccRamp.h"
+
 using namespace Eigen;
 
 /*
@@ -158,6 +160,8 @@ private:
 //  analyser::PathAnalyser_base* _pathAnalyser;
   std::unique_ptr<controller::Controller_base> _controller;
 //  controller::Controller_base* _controller;
+
+  std::unique_ptr<rona::AccRamp> _acc_ramp;
 
   bool _gotPath;
 

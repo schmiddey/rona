@@ -55,6 +55,9 @@ RonaMove::RonaMove()
   double tf_stamp_offset     ;
   double path_truncate       ;
 
+  double max_lin_acc;
+  double max_ang_acc;
+
   bool do_endrotate;
   bool hold_pos;
 
@@ -85,6 +88,9 @@ RonaMove::RonaMove()
   privNh.param<double>("lin_end_approach"     ,   lin_end_approach       , 0.5  );
   privNh.param<double>("tf_stamp_offset"      ,   tf_stamp_offset        , 0.0  );  //todo remove this param.. or do not use it..
   privNh.param<double>("path_truncate"        ,   path_truncate          , 0.5  );
+  
+  privNh.param<double>("max_lin_acc"          ,   max_lin_acc            , 1.5  );
+  privNh.param<double>("max_ang_acc"          ,   max_ang_acc            , 1.5  );
 
   //mecanum
   privNh.param<bool>  ("hold_pos"             ,   hold_pos               , true );
@@ -185,6 +191,8 @@ RonaMove::RonaMove()
   }
 
 
+  _acc_ramp = std::make_unique<rona::AccRamp>(max_lin_acc, max_ang_acc, loop_rate);
+
   _gotPath = false;
 
   _hold_pos = hold_pos;
@@ -244,7 +252,6 @@ void RonaMove::pubState()
 //      }
 //      else
     {  //arrived:
-
       if(_hold_pos)
       {
         _state = State::HOLD_POS;   //holding pos by control to end pos continuously
@@ -397,7 +404,7 @@ void RonaMove::doPathControl()
   this->pubState();
 
   //publish Twist:
-  _pub_cmd_vel.publish(msgTwist);
+  _pub_cmd_vel.publish(_acc_ramp->toc_ramp(msgTwist));
 }
 
 void RonaMove::subPath_callback(const nav_msgs::Path& msg_)
@@ -561,8 +568,6 @@ bool RonaMove::srvSetPosHold_callback(std_srvs::SetBool::Request& req, std_srvs:
 
   res.success = true;
   res.message = "TRUE";
-
-  ROS_ERROR_STREAM("Got SetPosHold Srv : " << req.data);
   return true;
 } 
 
