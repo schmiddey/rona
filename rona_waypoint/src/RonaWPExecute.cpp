@@ -39,7 +39,13 @@ RonaWPExecute::RonaWPExecute()
 
     if(!wp_file_load.empty())
     {
-      _wp_handler.load(wp_file_load);
+      ROS_INFO("Load Waypoints");
+      if(!_wp_handler.load(wp_file_load))
+      {
+        ROS_ERROR("ERROR at loading wps wil exit");
+        ::exit(EXIT_FAILURE);
+      }
+      ROS_INFO_STREAM("Size Waypoints : " << _wp_handler.size());
     }
 
     ROS_INFO_STREAM("Do Loop?: " << (_cfg.do_loop ? "true" : "false") );
