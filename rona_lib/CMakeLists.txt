@@ -22,9 +22,9 @@ find_package(cmake_modules REQUIRED)
 
 find_package(Eigen REQUIRED)
 
-find_package(SDL REQUIRED)
+# find_package(SDL REQUIRED)
 
-find_package(SDL_image REQUIRED)
+# find_package(SDL_image REQUIRED)
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(YAML_CPP REQUIRED yaml-cpp)
