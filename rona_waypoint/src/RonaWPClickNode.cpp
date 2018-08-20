@@ -41,6 +41,7 @@ RonaWPClickNode::RonaWPClickNode()
 
     _srv_save             = _nh.advertiseService("rona/waypoint/save_waypoints", &RonaWPClickNode::srv_save_wp_callback, this);
     _srv_set_curr_tf_pose = _nh.advertiseService("rona/waypoint/tf_wp", &RonaWPClickNode::srv_set_curr_tf_pose_callback, this);
+    _srv_rm_wp            = _nh.advertiseService("rona/waypoint/rm_wp", &RonaWPClickNode::srv_remove_wp, this);
 
     _srv_plan_path     = _nh.serviceClient<rona_msgs::PlanPath>("todo");
 
@@ -208,6 +209,17 @@ bool RonaWPClickNode::srv_set_curr_tf_pose_callback(std_srvs::Empty::Request& re
   _orientation = pose.orientation;
 
   this->add_waypoint(pose);
+  return true;
+}
+
+bool RonaWPClickNode::srv_remove_wp(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res)
+{
+  if(_wp_handler.empty())
+    return true;
+
+  _wp_handler.pop_back();
+  this->publish_waypoints();
+
   return true;
 }
 

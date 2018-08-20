@@ -79,6 +79,9 @@ private:    //functions
 
     bool srv_set_curr_tf_pose_callback(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res);
 
+    bool srv_remove_wp(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res);
+
+
     // std::pair<bool, nav_msgs::Path> compute_direct_path(const geometry_msgs::Point& start, const geometry_msgs::Point& end, const geometry_msgs::Quaternion& ori);
 
     //compute path via sirona via service....
@@ -98,6 +101,7 @@ private:    //dataelements
 
     ros::ServiceServer _srv_save;
     ros::ServiceServer _srv_set_curr_tf_pose;
+    ros::ServiceServer _srv_rm_wp;
 
     ros::ServiceClient _srv_plan_path;
 
