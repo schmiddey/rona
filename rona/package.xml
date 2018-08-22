@@ -19,18 +19,16 @@
   <buildtool_depend>catkin</buildtool_depend>
 
 
+  <run_depend>rona_exploration</run_depend>
+  <run_depend>rona_frontier</run_depend>
   <run_depend>rona_launcher</run_depend>
   <run_depend>rona_lib</run_depend>
+  <run_depend>rona_move</run_depend>
   <run_depend>rona_msgs</run_depend>
   <run_depend>rona_plan</run_depend>
   <run_depend>rona_navigation</run_depend>
-  <run_depend>rona_move</run_depend>
-  <run_depend>rona_frontier</run_depend>
-  <run_depend>rona_exploration</run_depend>
   <run_depend>rona_waypoint</run_depend>
   <!-- <run_depend>rona_test</run_depend> -->
-  <!-- <run_depend>rona_waypoint</run_depend> -->
-  <!-- <run_depend>rona_trajectory_server</run_depend> -->
 
 
   <export>

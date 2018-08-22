@@ -13,6 +13,7 @@
 #include <std_msgs/Float64.h>
 #include <std_srvs/Empty.h>
 #include <std_srvs/SetBool.h>
+#include <std_msgs/String.h>
 
 #include <rona_msgs/NodeCtrlSRV.h>
 #include <rona_msgs/NodeCtrl.h>
@@ -106,11 +107,17 @@ private:  //functions
   void subPause_callback(const std_msgs::Bool& msg);
 
   void subVelScale_callback(const std_msgs::Float64& msg);
+
+  void subSetTargetRaius_callback(const std_msgs::Float64& msg);
+
+  void subSetRobotFrame_callback(const std_msgs::String& msg);
+
   /**
    *
    * @param msg
    */
   void subCtrl_callback(const rona_msgs::NodeCtrl& msg);
+
 
   bool srvNodeCtrl_callback(rona_msgs::NodeCtrlSRVRequest& req, rona_msgs::NodeCtrlSRVResponse& res);
   bool srvReverseOn_callback(std_srvs::EmptyRequest& req, std_srvs::EmptyResponse& res);
@@ -134,6 +141,8 @@ private:
   ros::Subscriber _sub_pause;
   ros::Subscriber _sub_ctrl;
   ros::Subscriber _sub_vel_scale;
+  ros::Subscriber _sub_set_target_radius;
+  ros::Subscriber _sub_set_robot_frame;
   
   ros::ServiceServer _srv_node_ctrl;
   ros::ServiceServer _srv_reverse_on;

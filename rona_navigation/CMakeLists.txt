@@ -19,9 +19,8 @@ find_package(catkin REQUIRED COMPONENTS
   actionlib
 )
 
-find_package(cmake_modules REQUIRED)
 FIND_PACKAGE( OpenCV 3 REQUIRED )
-find_package(Eigen REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -129,7 +128,7 @@ include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
-  ${EIGEN_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library

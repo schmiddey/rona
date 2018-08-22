@@ -19,11 +19,8 @@ find_package(catkin REQUIRED COMPONENTS
   visualization_msgs
 )
 
-#todo find better way!!!
-find_package(cmake_modules REQUIRED)
 
-find_package(Eigen REQUIRED)
-# find_package(Eigen3)
+find_package(Eigen3 REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -131,7 +128,7 @@ include_directories(
   #include
   ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
-  ${EIGEN_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIRS}
 )
 
 file(GLOB rona_plan_src "src/RonaPlanNode.cpp"

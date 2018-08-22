@@ -314,20 +314,22 @@ public:
     m_handler.push_back(rona::Marker::createSphere(pose_start, 0.1, rona::Color(rona::Color::BLUE) ) );
 
     std::vector<geometry_msgs::Point> waypoints;
-
+    std::size_t wp_id = 0;
     for(auto& e : this->getWaypoints())
     {
       //add waypoints
       //waypoints.push_back(e.first);
       m_handler.push_back(rona::Marker::createCyliner(e.first.position, 0.2, 0.02, rona::Color(rona::Color::RED) ) );
       m_handler.push_back(rona::Marker::createArrow(e.first, 0.4, 0.02, rona::Color(rona::Color::BLACK) ) );
+      std::string text = "ID: " + std::to_string(wp_id);
+      m_handler.push_back(rona::Marker::createText(e.first.position, text, 0.3, rona::Color(rona::Color::WHITE)));
       //add path
       for(auto& p : e.second.poses)
       {
          m_handler.push_back(rona::Marker::createSphere(p, 0.05, rona::Color(rona::Color::ORANGE) ) );
          m_handler.push_back(rona::Marker::createArrow(p.pose, 0.2, 0.01, rona::Color(rona::Color::BLACK) ) );
       }
-
+      ++wp_id;
     }
     //push waypoints
     //m_handler.push_back(rona::Marker::createLineList(waypoints, 0.2, 0.02, rona::Color(rona::Color::RED) ) );

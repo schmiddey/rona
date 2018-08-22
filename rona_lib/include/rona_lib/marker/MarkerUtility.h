@@ -257,7 +257,39 @@ public:
     return marker;
   }
 
+  inline static visualization_msgs::Marker createText(const geometry_msgs::Point& point,
+                                                      const std::string& text,
+                                                      const double height,
+                                                      const Color& color,
+                                                      const std::string& frame_id = "map",
+                                                      const int id = 0)
+  {
+    visualization_msgs::Marker marker;
+
+    marker.header.frame_id = frame_id;
+    marker.header.stamp = ros::Time::now();
+
+    marker.ns = "rona";
+    marker.id = id;
+
+    marker.text = text;
+
+    marker.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
+
+    marker.action = visualization_msgs::Marker::ADD;
+
+    marker.pose.position = point;
+
+    marker.scale.z = height;
+
+    marker.color = color.toRosColor();
+
+    marker.lifetime = ros::Duration();
+    return marker;
+  }
+
 };
+
 
 /**
  * @todo may move to private in mahandler

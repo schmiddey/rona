@@ -27,7 +27,7 @@
     <param name="ang_reached_range"        type="double" value="0.15"               />  <!--todo try less -->
     <param name="lin_end_approach"         type="double" value="1"               />
     <param name="lin_ctrl_scale"           type="double" value="1.5"               />
-    <param name="ang_ctrl_scale"           type="double" value="5.2"               />
+    <param name="ang_ctrl_scale"           type="double" value="3.5"               />
     <!-- <param name="lin_slope"                type="double" value="0.4"               /> -->
     <!-- <param name="ang_slope"                type="double" value="0.9"               /> -->
     <param name="min_vel_value"            type="double" value="0.001"             />

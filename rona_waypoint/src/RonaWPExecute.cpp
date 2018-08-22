@@ -22,13 +22,15 @@ RonaWPExecute::RonaWPExecute()
     //init publisher
     _pub_path   = _nh.advertise<nav_msgs::Path>("rona/move/path", 1);
     _pub_state  = _nh.advertise<std_msgs::String>("rona/waypoint/state", 1);
-    _pub_marker = _nh.advertise<visualization_msgs::MarkerArray>("rona/waypoint/marker", 1);
+    _pub_marker = _nh.advertise<visualization_msgs::MarkerArray>("rona/waypoint/marker", 1, true);
 
     //inti subscriber
     //_sub = _nh.subscribe("subname", 1, &Template::subCallback, this);
     _sub_move_state = _nh.subscribe("rona/move/state", 1, &RonaWPExecute::sub_move_state_callback, this);
     _sub_node_ctrl  = _nh.subscribe("rona/waypoint/node_ctrl", 1, &RonaWPExecute::sub_node_ctrl_callback, this);
     _sub_load_wp    = _nh.subscribe("rona/waypoint/load", 1, &RonaWPExecute::sub_load_wp_callback, this);
+
+    _srv_flip  = _nh.advertiseService("rona/waypoint/flip_wp", &RonaWPExecute::srv_flip_wp_callback, this);
 
     _curr_wp_id = 0;
 
@@ -168,7 +170,13 @@ void RonaWPExecute::sub_load_wp_callback(const std_msgs::String& msg)
 }
 
 
-
+bool RonaWPExecute::srv_flip_wp_callback(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res)
+{
+  _wp_handler.flip(0.05);
+  _curr_wp_id = _wp_handler.size() - _curr_wp_id;
+  if(_curr_wp_id >= _wp_handler.size())
+    --_curr_wp_id;
+}
 
 
 // ------------- main ---------------

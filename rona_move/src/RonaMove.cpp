@@ -142,6 +142,9 @@ RonaMove::RonaMove()
   _sub_ctrl = _nh.subscribe(sub_ctrl_topic, 1000, &RonaMove::subCtrl_callback, this);
   _sub_pause = _nh.subscribe("rona/move/pause", 1, &RonaMove::subPause_callback, this);
   _sub_vel_scale = _nh.subscribe("rona/move/vel_scale", 1, &RonaMove::subVelScale_callback, this);
+  _sub_set_target_radius = _nh.subscribe("rona/move/set_target_radius", 1, &RonaMove::subSetTargetRaius_callback, this);
+  _sub_set_robot_frame   = _nh.subscribe("rona/move/set_robot_frame", 1, &RonaMove::subSetRobotFrame_callback, this);
+
 
   _srv_node_ctrl    = _nh.advertiseService("/rona/move/node_ctrl",       &RonaMove::srvNodeCtrl_callback, this);
   _srv_reverse_on   = _nh.advertiseService("/rona/move/set_reverse_on",  &RonaMove::srvReverseOn_callback, this);
@@ -532,6 +535,16 @@ void RonaMove::subVelScale_callback(const std_msgs::Float64& msg)
     scale = 1.0;
   }
   _controller->setMaxVel(_max_vel_lin * scale, _max_vel_ang * scale);
+}
+
+void RonaMove::subSetTargetRaius_callback(const std_msgs::Float64& msg)
+{
+  
+}
+
+void RonaMove::subSetRobotFrame_callback(const std_msgs::String& msg)
+{
+  _tf_robot_frame = msg.data;
 }
 
 bool RonaMove::srvNodeCtrl_callback(rona_msgs::NodeCtrlSRVRequest& req, rona_msgs::NodeCtrlSRVResponse& res)

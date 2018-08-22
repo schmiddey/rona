@@ -34,6 +34,13 @@ public:
 
    analyser::diff_scale analyse(const analyser::pose& current_pose);
 
+  //tmp hack
+  void setTargetRadius(const double r, const double r_final)
+  {
+    _target_radius = r;
+    _target_radius_last = r_final;
+  }
+
 private: //functions
    /**
     * @brief contains the transfer function with a cos(mx)^(2..n)

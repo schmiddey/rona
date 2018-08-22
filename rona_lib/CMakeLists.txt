@@ -18,9 +18,8 @@ find_package(catkin REQUIRED COMPONENTS
 SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -O2 -Wall -std=c++1y")
 
 
-find_package(cmake_modules REQUIRED)
 
-find_package(Eigen REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 # find_package(SDL REQUIRED)
 
@@ -141,7 +140,7 @@ catkin_package(
 include_directories(
   ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
-  ${EIGEN_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIRS}
   include
 )
 

@@ -6,6 +6,7 @@
 #include <std_msgs/Bool.h>
 #include <std_msgs/String.h>
 #include <nav_msgs/Path.h>
+#include <std_srvs/Empty.h>
 
 #include <rona_msgs/NodeCtrl.h>
 
@@ -98,6 +99,8 @@ private:    //functions
 
     void sub_load_wp_callback(const std_msgs::String& msg);
 
+    bool srv_flip_wp_callback(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res);
+    
     int next_wp()
     {
       if(++_curr_wp_id >= _wp_handler.size())
@@ -126,6 +129,8 @@ private:    //dataelements
     ros::Subscriber _sub_move_state;
     ros::Subscriber _sub_node_ctrl;
     ros::Subscriber _sub_load_wp;
+
+    ros::ServiceServer _srv_flip;
 
     ros::Timer _loopTimer;
     ros::Timer _loopMarkerTimer;
