@@ -31,6 +31,14 @@ public:
 
   virtual analyser::diff_scale analyse(const analyser::pose& current_pose);
 
+  virtual void setTargetRadius(const double r, const double r_final)
+  {
+    _cfg.target_radius         = r;
+    _cfg.target_radius_final   = r_final;
+    // _target_radius = r;
+    // _target_radius_last = r_final;
+  }
+
 private: //functions
 
 

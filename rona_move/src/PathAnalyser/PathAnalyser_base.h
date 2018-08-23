@@ -134,6 +134,8 @@ public:
    */
   virtual analyser::diff_scale analyse(const analyser::pose& current_pose) = 0;
 
+  virtual void setTargetRadius(const double r, const double r_final) = 0;
+
   analyser::info getInfo();
 
   /**

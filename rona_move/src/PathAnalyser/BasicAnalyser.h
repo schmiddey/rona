@@ -35,10 +35,17 @@ public:
    analyser::diff_scale analyse(const analyser::pose& current_pose);
 
   //tmp hack
-  void setTargetRadius(const double r, const double r_final)
+  virtual void setTargetRadius(const double r, const double r_final)
   {
+    std::cout << "++++++++++++++++++++++++++++++++++++" << std::endl;
+
     _target_radius = r;
+    std::cout << "_target_radius: " << _target_radius << std::endl;
     _target_radius_last = r_final;
+    std::cout << "_target_radius_last: " << _target_radius_last << std::endl;
+
+    //hack
+    _curr_target_radius = r;
   }
 
 private: //functions

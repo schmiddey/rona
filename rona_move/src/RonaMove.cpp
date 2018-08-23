@@ -364,18 +364,18 @@ void RonaMove::doPathControl()
   //get diff scale
   analyser::diff_scale diff_scale = _pathAnalyser->analyse(pose);
 
- std::cout << "analyse: " << std::endl;
- std::cout << "ang   : " << diff_scale.angular << std::endl;
- std::cout << "lin_x : " << diff_scale.linear_x << std::endl;
- std::cout << "lin_y : " << diff_scale.linear_y << std::endl;
+//  std::cout << "analyse: " << std::endl;
+//  std::cout << "ang   : " << diff_scale.angular << std::endl;
+//  std::cout << "lin_x : " << diff_scale.linear_x << std::endl;
+//  std::cout << "lin_y : " << diff_scale.linear_y << std::endl;
 
   //controll diffscale
   controller::velocity vel = _controller->control(diff_scale.linear_x, diff_scale.linear_y, diff_scale.angular);
 
- std::cout << "control: " << std::endl;
- std::cout << "ang   : " << vel.angular << std::endl;
- std::cout << "lin_x : " << vel.linear_x << std::endl;
- std::cout << "lin_y : " << vel.linear_y << std::endl;
+//  std::cout << "control: " << std::endl;
+//  std::cout << "ang   : " << vel.angular << std::endl;
+//  std::cout << "lin_x : " << vel.linear_x << std::endl;
+//  std::cout << "lin_y : " << vel.linear_y << std::endl;
 
 
 
@@ -539,7 +539,8 @@ void RonaMove::subVelScale_callback(const std_msgs::Float64& msg)
 
 void RonaMove::subSetTargetRaius_callback(const std_msgs::Float64& msg)
 {
-  
+  ROS_INFO("---------------> set Target Radius");
+  _pathAnalyser->setTargetRadius(msg.data, msg.data);
 }
 
 void RonaMove::subSetRobotFrame_callback(const std_msgs::String& msg)

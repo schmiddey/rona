@@ -2,7 +2,7 @@
 <launch>
   <!-- Path controller -->
   <!--node name="rona_move_node" pkg="rona_move" type="rona_move_node" output="screen"-->
-  <node name="rona_move_node" pkg="rona_move" type="rona_move_node" output="log">
+  <node name="rona_move_node" pkg="rona_move" type="rona_move_node" output="screen">
     <param name="pub_cmd_vel_topic"        type="string" value="/robot0/cmd_vel"           />
     <param name="pub_state_topic"          type="string" value="rona/move/state"   />
     <param name="pub_process_topic"        type="string" value="rona/move/process" />
@@ -37,7 +37,7 @@
   <arg name="map_scale"                default="4"      />
   <arg name="continuous_map_operation" default="true"   />
 
-  <node name="rona_plan_node" pkg="rona_plan" type="rona_plan_node" output="screen">
+  <node name="rona_plan_node" pkg="rona_plan" type="rona_plan_node" output="log">
     <param name="map_frame"                  type="string" value="$(arg map_frame)"                  />
     <param name="robot_frame"                type="string" value="$(arg robot_frame)"                />
     <param name="robot_radius"               type="double" value="$(arg robot_radius)"               />
