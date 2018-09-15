@@ -145,10 +145,12 @@ include_directories(
 ## Declare a C++ executable
 add_executable(rona_test_murona_target_node src/MuronaTarget.cpp)
 add_executable(rona_test_grid_node src/GridTest.cpp)
+add_executable(rona_test_rona_node src/RonaNodeTemplate.cpp)
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 add_dependencies(rona_test_murona_target_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(rona_test_grid_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(rona_test_rona_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(rona_test_murona_target_node
@@ -160,6 +162,10 @@ target_link_libraries(rona_test_grid_node
  ${YAML_CPP_LIBRARIES}
  ${OpenCV_LIBRARIES}
 )
+
+target_link_libraries(rona_test_rona_node
+   ${catkin_LIBRARIES}
+ )
 
 #############
 ## Install ##
@@ -176,11 +182,11 @@ target_link_libraries(rona_test_grid_node
 # )
 
 ## Mark executables and/or libraries for installation
- install(TARGETS rona_test_murona_target_node
-#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
- )
+#  install(TARGETS rona_test_murona_target_node
+# #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+# #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+#    RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+#  )
 
 ## Mark cpp header files for installation
 # install(DIRECTORY include/${PROJECT_NAME}/

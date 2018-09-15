@@ -26,7 +26,7 @@
 
       <!-- differential -->
       <param name="cos_pwr_n"                type="int"    value="4 "                />
-      <param name="cos_fac_n"                type="double" value="3.0"               />
+      <param name="cos_fac_n"                type="double" value="0.7"               />
       <param name="do_endrotate"             type="bool"   value="false" 				 />
 
    </node>

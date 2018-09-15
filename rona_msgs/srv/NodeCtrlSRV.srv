@@ -1,3 +1,4 @@
 rona_msgs/NodeCtrl ctrl
 ---
 bool accepted
+string ret_msg
